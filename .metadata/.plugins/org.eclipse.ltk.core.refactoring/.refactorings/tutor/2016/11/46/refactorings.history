@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;tutor/src/bla.rsc&apos; to &apos;unitComplexity.rsc&apos;" description="Rename resource &apos;bla.rsc&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/bla.rsc" name="unitComplexity.rsc" stamp="1478787832290" updateReferences="true"/>
+</session>
