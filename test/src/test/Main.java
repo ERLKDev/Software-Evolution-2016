@@ -2,9 +2,9 @@ package test;
 //Test
 public class Main {
   public static void main(String[] args){
-    if(True) {
+    if(true) {
       System.out.println("testfile.");
-      if(True){
+      if(true){
         System.out.println("nested.");
       }
     }
@@ -12,12 +12,34 @@ public class Main {
       return;
     }
     do{
-      if(True){
+      if(true){
         continue;
+      } else{
+        if(true){
+          if(true){
+            continue;
+          }
+          else{
+            continue;
+          }
+        }
       }
+    }while(false);
 
-    }while(False);
-
+    while(true){
+      if(true){
+        continue;
+      } else{
+        if(true){
+          if(true){
+            continue;
+          }
+          else{
+            continue;
+          }
+        }
+      }
+    }
    }
 
 

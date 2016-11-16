@@ -11,26 +11,35 @@ public void init() {
 	loc project = |project://test|;	
 	model = createM3FromEclipseProject(project);
 	myMethods = methods(model);
-	
+	println("loaded");
 	for(unit <- myMethods) {
 		ast = getMethodASTEclipse(unit, model = model);
-		complexity = countBranches(ast);
-		println(complexity);
+		count = 0;
+		visit(ast) {
+			case m: \method(_,_,_,_, Statement impl):count += countcomplex(impl);
+			case c: \constructor(_,_,_, Statement impl):count += countcomplex(impl);
+		}
+		println(count);
 	}
 }
 
-public int countBranches(value tree) {
-	int count = 0;
-	visit(tree) {
+public int countcomplex(Statement impl){
+	count = 0;
+	
+	visit (impl) {
 		case \case(_): count += 1;
 		case \catch(_,_): count += 1;
-		case \conditional(_, Statement thenBranch,Statement elseBranch): count += (countNested(thenBranch) + countNested(elseBranch));
+		case \conditional(_,_,_): count += 1;
 		case \do(_,_): count += 1;
 		case \for(_,_): count += 1;
 		case \foreach(_,_,_): count += 1;
-		case \if(_,Statement thenBranch): count += 1 + countNested(thenBranch);
-		case \if(_,Statement thenBranch,Statement elseBranch): count += 1 + (countNested(thenBranch) + countNested(elseBranch));
+		case \if(_,_): count += 1;
+		case \if(_,_,_): count += 1;
+		case \infix(_,"||", _): count += 1;
+		case \infix(_, "&&", _): count += 1;
 		case \while(_,_): count += 1;
 	}
 	return count;
 }
+
+
