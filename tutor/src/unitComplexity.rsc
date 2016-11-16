@@ -19,8 +19,29 @@ public void init() {
 			case m: \method(_,_,_,_, Statement impl):count += countcomplex(impl);
 			case c: \constructor(_,_,_, Statement impl):count += countcomplex(impl);
 		}
+		
 		println(count);
 	}
+	printStats(1,2,3,4);
+}
+
+public void printStats(int volume, int complexity, int duplicate, int unitSize){
+	
+	int analysability = (volume + duplicate + unitSize) / 3;
+	int changeability = (complexity + duplicate) / 2;
+	int stability = 2;
+	int testability = (complexity + unitSize) / 2;
+	
+	println("
+		+---------------------+
+		|Analisability  |  <analysability>  |
+		+---------------------+
+		|Changeability  |  <changeability>  |
+		+---------------------+
+		|Stability      |  <stability>  |
+		+---------------------+
+		|Testability    |  <testability>  |
+		+-------------+-------+");
 }
 
 public int countcomplex(Statement impl){
