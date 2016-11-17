@@ -40,6 +40,12 @@ public class Main {
         }
       }
     }
+    while(true){
+      continue;
+    }
+    for(true){
+      continue;
+    }
    }
 
 
