@@ -28,11 +28,13 @@ int getVolume(){
 }
 
 int getDuplicates(){
-	return size(duplicate());
+list[str] lines = getAllLinesCommentFree();
+	return duplicates(lines);
 }
 
 real getDuplicatePercentage(){
-	return getDuplicates() / toReal(getVolume());
+	list[str] lines = getAllLinesCommentFree();
+	return duplicates(lines) * 100.0 / toReal(size(lines));
 }
 
 map[loc,int] getUnitSizes(){
@@ -56,6 +58,7 @@ list[str] getAllLinesCommentFree(){
 
 list[str] removeComments(list[str] lines){
 	bool multiLineComment = false;
+	list[str] newLines = [];
 	
 	int i = 0;
 	for (l <- lines){
@@ -65,59 +68,62 @@ list[str] removeComments(list[str] lines){
 		switch(line){
 			
 			// Skips empty line		
-			case "": {lines = delete(lines, i); continue;}
+			case "": {continue;}
 			
 			// Skips single line comment
-			case /\/\/.*/ : {lines = delete(lines, i); continue;}
+			case /\/\/.*/ : {continue;}
 			
 			// Skips multi line comment (single)
-			case /\/\*.*\*\//: {lines = delete(lines, i); continue;}
+			case /\/\*.*\*\//: {continue;}
 			
 			// Skips multi line comment begin
 			case /\/\*.*/: {
 				multiLineComment = true;
-				lines = delete(lines, i); 
 				continue;
 			}
 			
 			// Skips multi line comment end
 			case /.*\*\//: {
 				multiLineComment = false;
-				lines = delete(lines, i);
 				continue;
 			}
 				
 			default: {
 				// Count lines if not in multi line comment block
 				if (multiLineComment){
-					lines = delete(lines, i); 
 					continue;
 				}
+				newLines += line;
 				i += 1;
 			}		
 		}
 		if(i % 10000 == 0)
 			println(i);
 	}
-	return lines;
+	return newLines;
 }
 
 
 
-public void duplicates()
+public int duplicates(list[str] lines)
 {
-	list[str]lines = getAllLinesCommentFree();
-	list[int] hashes = [];
+	map[str, int] processedLines = ();
+	int duplicates = 0;
+	bool prev = false;
 	
 	for (i <- [0 .. size(lines) - 6]){
-		hashes += hash(lines[i] + lines[i + 1] + lines[i + 2] + lines[i + 3] + lines[i + 4] + lines[i + 5]);
+		str line = lines[i] + lines[i + 1] + lines[i + 2] + lines[i + 3] + lines[i + 4] + lines[i + 5];
+		if(line in processedLines){
+			if(prev)
+				duplicates += 1;
+			else{
+				prev = true;
+				duplicates += 6;
+			}
+		}else{
+			prev = false;
+			processedLines += (line : i);
+		}
 	}
-}
-
-str listToString (list[str] lines){
-	return ("" | it + e | str e <- lines);	
-}
-
-int hash (str string) {
-	return  toInt(("" | it + toString(i) | i <- chars(string))) * 2654435761 mod toInt(pow(2,32));
+	return duplicates;
 }
