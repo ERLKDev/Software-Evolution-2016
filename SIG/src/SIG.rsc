@@ -8,27 +8,40 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 
 public void init() {
-	loc project = |project://hsqldb-2.3.1|;	
+	loc project = |project://smallsql0.21_src|;	
 	model = createM3FromEclipseProject(project);
 	myMethods = methods(model);
 	println("loaded");
-	totalLOC = size(getAllLinesCommentFree(model));
-	
-	lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- myMethods];
-	rPercent = convertPercentage(unitInfo, totalLOC);
-	println(complexity(rPercent));
+	//Is different from the sum of lines in all units.
+	allLOC = getAllLinesCommentFree(model);
+	volume = size(allLOC);
+	int complexity = getComplexity(model);
+	int duplicates = getDuplicates(allLOC);
+	println("
+vol:<volume>
+complexity:<complexity>
+dups:<duplicates>
+	");
+	//
+	//lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- myMethods];
+	//rPercent = convertPercentage(unitInfo, totalLOC);
+	//println(complexity(rPercent));
 	//println(size(myMethods));
 	//printStats(1,complexity(rPercent),3,4);
 }
 
+int getComplexity(M3 model) {
+	lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
+	int totalUnitLOC = (0 | it + unitloc | <risk,unitloc> <- unitInfo);
+	return complexity(convertPercentage(unitInfo, totalUnitLOC));
+}
 
-
-public list[num] convertPercentage(lrel[num,num] units, int totalLOC) {
+list[num] convertPercentage(lrel[num,num] units, int totalLOC) {
 	return [(rBin / totalLOC) * 100 | rBin <- riskBins(units)];
 }
 
 //Returns the proper complexity risk based on the percentage and gradation of complexity of the methods.
-public int complexity(list[num] bins) {
+int complexity(list[num] bins) {
 	println("
 	Complexity Report:
 	<bins[0]> of the code is of very low complexity.
@@ -44,7 +57,7 @@ public int complexity(list[num] bins) {
 }
 
 //Construct bins with the total lines of code per risk level
-public list[num] riskBins(lrel[num,num] riskArr) {
+list[num] riskBins(lrel[num,num] riskArr) {
 	bins = [
 		(0 | it + y | <x,y> <- riskArr, x == 0),
 		(0 | it + y | <x,y> <- riskArr, x == 1),
@@ -56,7 +69,7 @@ public list[num] riskBins(lrel[num,num] riskArr) {
 
 //Analyses a unit of code and returns the risk number
 // (numbers were based on the paper of Heitlager).
-public tuple[num,num] analyzeUnit(loc unitLoc, M3 model) {
+tuple[num,num] analyzeUnit(loc unitLoc, M3 model) {
 	ast = getMethodASTEclipse(unitLoc, model = model);
 	count = 0;
 	num risk = 0;
@@ -75,7 +88,7 @@ public tuple[num,num] analyzeUnit(loc unitLoc, M3 model) {
 }
 
 //Counts the complex statements.
-public int countcomplex(Statement impl){
+int countcomplex(Statement impl){
 	count = 0;
 	
 	visit (impl) {
@@ -118,13 +131,12 @@ map[loc,int] getUnitSizes(){
 	return (m : countLines(readFileLines(m)) | m <- myMethods);
 }
 
-list[str] getAllLinesCommentFree(){
+list[str] getAllLinesCommentFree(M3 myModel){
 	list[str] lines = [];
 	
 	for	(f <- files(myModel)){
 		lines += removeComments(readFileLines(f));
 	}
-	println(size(lines));
 	return lines;	
 }
 
@@ -176,18 +188,7 @@ list[str] removeComments(list[str] lines){
 	return lines;
 }
 
-void init() {
-   myModel = createM3FromEclipseProject(|project://smallsql0.21_src|);
-   //myModel = createM3FromEclipseProject(|project://hsqldb-2.3.1|);
-   //myModel = createM3FromEclipseProject(|project://TestProject|);
-   //decls = createAstsFromEclipseProject(|project://TestProject|, true);
-   
-
-   myMethods = methods(myModel);   
-}
-
-
-public int duplicates(list[str] lines)
+int getDuplicates(list[str] lines)
 {
 	map[str, int] processedLines = ();
 	int duplicates = 0;
@@ -210,7 +211,7 @@ public int duplicates(list[str] lines)
 	return duplicates;
 }
 
-public void printStats(int volume, int complexity, int duplicate, int unitSize){
+void printStats(int volume, int complexity, int duplicate, int unitSize){
 	
 	int analysability = (volume + duplicate + unitSize) / 3;
 	int changeability = (complexity + duplicate) / 2;
