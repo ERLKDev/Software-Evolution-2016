@@ -46,13 +46,18 @@ int locRisk(int totalLOC) {
 }
 
 tuple[int,int] getUnitStats(M3 model) {
-	lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
-	int totalUnitLOC = (0 | it + unitloc | <risk,unitloc> <- unitInfo);
-	return <complexity(convertPercentage(unitInfo, totalUnitLOC)), totalUnitLOC>;
+	lrel[num, num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
+	int totalUnitLOC = (0 | it + lines | <risk,unitloc,lines> <- unitInfo);
+	
+	return <complexity(complexPercentage(unitInfo, totalUnitLOC)), complexity(unitPercentage(unitInfo, totalUnitLOC))>;
 }
 
-list[num] convertPercentage(lrel[num,num] units, int totalLOC) {
-	return [(rBin / totalLOC) * 100 | rBin <- riskBins(units)];
+list[num] complexPercentage(lrel[num,num,num] units, int totalLOC) {
+	return [(rBin / totalLOC) * 100 | rBin <- riskBinsComplex(units)];
+}
+
+list[num] unitPercentage(lrel[num,num,num] units, int totalLOC) {
+	return [(rBin / totalLOC) * 100 | rBin <- riskBinsUnit(units)];
 }
 
 //Returns the proper complexity risk based on the percentage and gradation of complexity of the methods.
@@ -72,22 +77,32 @@ int complexity(list[num] bins) {
 }
 
 //Construct bins with the total lines of code per risk level
-list[num] riskBins(lrel[num,num] riskArr) {
+list[num] riskBinsComplex(lrel[num,num,num] riskArr) {
 	bins = [
-		(0 | it + y | <x,y> <- riskArr, x == 0),
-		(0 | it + y | <x,y> <- riskArr, x == 1),
-		(0 | it + y | <x,y> <- riskArr, x == 2),
-		(0 | it + y | <x,y> <- riskArr, x == 3)
+		(0 | it + z | <x,y,z> <- riskArr, x == 0),
+		(0 | it + z | <x,y,z> <- riskArr, x == 1),
+		(0 | it + z | <x,y,z> <- riskArr, x == 2),
+		(0 | it + z | <x,y,z> <- riskArr, x == 3)
 	];
 	return bins;
 }
 
+list[num] riskBinsUnit(lrel[num,num,num] riskArr) {
+	bins = [
+		(0 | it + z | <x,y,z> <- riskArr, y == 0),
+		(0 | it + z | <x,y,z> <- riskArr, y == 1),
+		(0 | it + z | <x,y,z> <- riskArr, y == 2),
+		(0 | it + z | <x,y,z> <- riskArr, y == 3)
+	];
+	return bins;
+}
 //Analyses a unit of code and returns the risk number
 // (numbers were based on the paper of Heitlager).
-tuple[num,num] analyzeUnit(loc unitLoc, M3 model) {
+tuple[num,num,num] analyzeUnit(loc unitLoc, M3 model) {
 	ast = getMethodASTEclipse(unitLoc, model = model);
-	count = 0;
-	num risk = 0;
+	num count = 0;
+	num complexRisk = 0;
+	num locRisk = 0;
 	int lines = countLines(readFileLines(unitLoc));
 	
 	visit(ast) {
@@ -95,11 +110,16 @@ tuple[num,num] analyzeUnit(loc unitLoc, M3 model) {
 		case c: \constructor(_,_,_, Statement impl): count += countcomplex(impl);
 	}
 	
-	if (count > 10 && count < 21) risk = 1;
-	if (count > 20 && count < 51) risk = 2;
-	if (count > 50) risk = 3;
- 
-	return <risk, lines>;
+	if (count > 10 && count < 21) complexRisk = 1;
+	if (count > 20 && count < 51) complexRisk = 2;
+	if (count > 50) complexRisk = 3;
+ 	
+ 	//PAS AAN
+ 	if (lines > 10 && lines < 21) locRisk = 1;
+	if (lines > 20 && lines < 51) locRisk = 2;
+	if (lines > 50) locRisk = 3;
+ 	
+	return <complexRisk, locRisk, lines>;
 }
 
 //Counts the complex statements.
