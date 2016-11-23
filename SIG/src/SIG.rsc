@@ -131,9 +131,12 @@ map[loc,int] getUnitSizes(){
 	return (m : countLines(readFileLines(m)) | m <- myMethods);
 }
 
+
+// Function to get all lines without comments
 list[str] getAllLinesCommentFree(M3 myModel){
 	list[str] lines = [];
 	
+	// Iterate over each file, remove the comments and adds it to a list of all lines
 	for	(f <- files(myModel)){
 		lines += removeComments(readFileLines(f));
 	}
