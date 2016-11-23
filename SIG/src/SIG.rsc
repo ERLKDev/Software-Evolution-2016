@@ -27,6 +27,8 @@ public void main() {
 	
 	// prints the stats
 	println("vol:<volume> \ncomplexity:<unitStats[0]> \ndups:<duplicates> \ntotal unit size: <unitStats[1]>");
+	
+	printStats(locRisk(size(allLOC)), unitStats[0], duplicateRisk(duplicates), unitStats[1]);
 }
 
 int duplicateRisk(num dupPercent) {
@@ -60,7 +62,7 @@ list[num] unitPercentage(lrel[num,num,num] units, int totalLOC) {
 	return [(rBin / totalLOC) * 100 | rBin <- riskBinsUnit(units)];
 }
 
-//Returns the proper complexity risk based on the percentage and gradation of complexity of the methods.
+//Returns the proper risk based on the percentage and gradation of complexity or size of the units.
 int complexity(list[num] bins) {
 	println("
 	Complexity Report:
@@ -115,9 +117,9 @@ tuple[num,num,num] analyzeUnit(loc unitLoc, M3 model) {
 	if (count > 50) complexRisk = 3;
  	
  	//PAS AAN
- 	if (lines > 10 && lines < 21) locRisk = 1;
-	if (lines > 20 && lines < 51) locRisk = 2;
-	if (lines > 50) locRisk = 3;
+ 	if (lines > 21 && lines < 31) locRisk = 1;
+	if (lines > 30 && lines < 41) locRisk = 2;
+	if (lines > 40) locRisk = 3;
  	
 	return <complexRisk, locRisk, lines>;
 }
