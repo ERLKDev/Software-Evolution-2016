@@ -22,11 +22,13 @@ public void main() {
 	
 	// Gets the volume, unit compexity, unit size and duplicates
 	int volume = size(allLOC);
-	tuple[int,int] unitStats = getUnitStats(model);
 	real duplicates = getDuplicatePercentage(allLOC);
-	
 	// prints the stats
-	println("vol:<volume> \ncomplexity:<unitStats[0]> \ndups:<duplicates> \ntotal unit size: <unitStats[1]>");
+	println("
+		Stats
+	The total lines of code without comments is: <volume>.
+	The percentage of duplicates in the codebase is: <duplicates>.");
+	tuple[int,int] unitStats = getUnitStats(model);
 	
 	printStats(locRisk(size(allLOC)), unitStats[0], duplicateRisk(duplicates), unitStats[1]);
 }
@@ -50,27 +52,33 @@ int locRisk(int totalLOC) {
 tuple[int,int] getUnitStats(M3 model) {
 	lrel[num, num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
 	int totalUnitLOC = (0 | it + lines | <risk,unitloc,lines> <- unitInfo);
-	
 	return <complexity(complexPercentage(unitInfo, totalUnitLOC)), complexity(unitPercentage(unitInfo, totalUnitLOC))>;
 }
 
 list[num] complexPercentage(lrel[num,num,num] units, int totalLOC) {
-	return [(rBin / totalLOC) * 100 | rBin <- riskBinsComplex(units)];
+	list[num] bins = [(rBin / totalLOC) * 100 | rBin <- riskBinsComplex(units)];
+	println("
+		Complexity Report:
+	<bins[0]>% of the code is of very low complexity.
+	<bins[1]>% of the code is of low complexity.
+	<bins[2]>% of the code is of moderate complexity.
+	<bins[3]>% of the code is of high complexity.");
+	return bins;
 }
 
 list[num] unitPercentage(lrel[num,num,num] units, int totalLOC) {
-	return [(rBin / totalLOC) * 100 | rBin <- riskBinsUnit(units)];
+	list[num] bins =[(rBin / totalLOC) * 100 | rBin <- riskBinsUnit(units)];
+	println("
+		Unit Size Report:
+	<bins[0]>% of the units are very small.
+	<bins[1]>% of the units are small.
+	<bins[2]>% of the units are moderatetly sized.
+	<bins[3]>% of the units are big.");
+	return bins;
 }
 
 //Returns the proper risk based on the percentage and gradation of complexity or size of the units.
 int complexity(list[num] bins) {
-	println("
-	Complexity Report:
-	<bins[0]> of the code is of very low complexity.
-	<bins[1]> of the code is of low complexity.
-	<bins[2]> of the code is of moderate complexity.
-	<bins[3]> of the code is of high complexity.
-	");
 	if (bins[3] >= 5.0 || bins[2] >= 15.0 || bins[1] >= 50.0) return 4;
 	if (bins[2] >= 10.0 || bins[1] >= 40.0) return 3;
 	if (bins[2] >= 5.0 || bins[1] >= 30.0) return 2;
