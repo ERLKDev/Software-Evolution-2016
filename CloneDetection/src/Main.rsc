@@ -21,8 +21,12 @@ void main(){
 	ast = asts[0];
 	
 	visit(ast){
-		case _: println("test");
+		case \simpleName(_): println("haha");
+		case \variable(_, _) : println("haha");
+		case \variable(_, _, _): println("haha");
+		case x: println(x);
 	}
+	println(asts[0]);
 		
 }
 
