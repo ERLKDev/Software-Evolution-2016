@@ -141,10 +141,12 @@ list[str] getAllLinesCommentFree(M3 myModel){
 	return lines;	
 }
 
+
+// Function for removing the comments from the lines
 list[str] removeComments(list[str] lines){
 	bool multiLineComment = false;
+	list[str] newLines = [];
 	
-	int i = 0;
 	for (l <- lines){
 		// Removes white spaces to make matchin easier
 		line = trim(l);
@@ -152,43 +154,40 @@ list[str] removeComments(list[str] lines){
 		switch(line){
 			
 			// Skips empty line		
-			case "": {lines = delete(lines, i); continue;}
+			case "": {continue;}
 			
 			// Skips single line comment
-			case /\/\/.*/ : {lines = delete(lines, i); continue;}
+			case /\/\/.*/ : {continue;}
 			
 			// Skips multi line comment (single)
-			case /\/\*.*\*\//: {lines = delete(lines, i); continue;}
+			case /\/\*.*\*\//: {continue;}
 			
 			// Skips multi line comment begin
 			case /\/\*.*/: {
 				multiLineComment = true;
-				lines = delete(lines, i); 
 				continue;
 			}
 			
 			// Skips multi line comment end
 			case /.*\*\//: {
 				multiLineComment = false;
-				lines = delete(lines, i);
 				continue;
 			}
 				
 			default: {
 				// Count lines if not in multi line comment block
 				if (multiLineComment){
-					lines = delete(lines, i); 
 					continue;
 				}
-				i += 1;
+				newLines += line;
 			}		
 		}
-		if(i % 10000 == 0)
-			println(i);
 	}
-	return lines;
+	return newLines;
 }
 
+
+// Function to get the ammount of duplicate lines
 int getDuplicates(list[str] lines)
 {
 	map[str, int] processedLines = ();
@@ -196,8 +195,12 @@ int getDuplicates(list[str] lines)
 	bool prev = false;
 	
 	for (i <- [0 .. size(lines) - 6]){
+		// Create a string of 6 combined lines
 		str line = lines[i] + lines[i + 1] + lines[i + 2] + lines[i + 3] + lines[i + 4] + lines[i + 5];
+		
+		// Checks if the combined line is in the processed lines map
 		if(line in processedLines){
+			// Add 6 if the previous line wasn't in the processed lines, 1 if the previous line was in the combined lines
 			if(prev)
 				duplicates += 1;
 			else{
@@ -205,12 +208,15 @@ int getDuplicates(list[str] lines)
 				duplicates += 6;
 			}
 		}else{
+			// If the line isn't in the processed lines, than add it
 			prev = false;
 			processedLines += (line : i);
 		}
 	}
 	return duplicates;
 }
+
+
 
 void printStats(int volume, int complexity, int duplicate, int unitSize){
 	
