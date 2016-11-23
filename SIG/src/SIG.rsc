@@ -250,6 +250,14 @@ int getDuplicates(list[str] lines)
 	return duplicates;
 }
 
+str convertNumberToStr(int number) {
+	if (number == 0) return "++";
+	if (number == 1) return "+";
+	if (number == 2) return "0";
+	if (number == 3) return "-";
+	if (number == 4) return "--";
+	return "0";
+}
 
 
 void printStats(int volume, int complexity, int duplicate, int unitSize){
@@ -261,13 +269,13 @@ void printStats(int volume, int complexity, int duplicate, int unitSize){
 	
 	println("
 		+---------------------+
-		|Analisability  |  <analysability>  |
+		|Analisability  |  <convertNumberToStr(analysability)>  |
 		+---------------------+
-		|Changeability  |  <changeability>  |
+		|Changeability  |  <convertNumberToStr(changeability)>  |
 		+---------------------+
-		|Stability      |  <stability>  |
+		|Stability      |  <convertNumberToStr(stability)>  |
 		+---------------------+
-		|Testability    |  <testability>  |
+		|Testability    |  <convertNumberToStr(testability)>  |
 		+-------------+-------+");
 }
 
