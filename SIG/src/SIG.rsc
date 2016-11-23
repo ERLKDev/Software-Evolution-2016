@@ -6,29 +6,27 @@ import List;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
+import util::Math;
 
 public void main() {
 	loc project = |project://smallsql0.21_src|;	
-	model = createM3FromEclipseProject(project);
-	myMethods = methods(model);
+	//loc project = |project://hsqldb-2.3.1|;
+	
+	M3 model = createM3FromEclipseProject(project);
+	set[loc] myMethods = methods(model);
+	
 	println("loaded");
-	//Is different from the sum of lines in all units.
-	allLOC = getAllLinesCommentFree(model);
-	volume = size(allLOC);
+	
+	// Gets the lines of codes without comment
+	list[str] allLOC = getAllLinesCommentFree(model);
+	
+	// Gets the volume, unit compexity, unit size and duplicates
+	int volume = size(allLOC);
 	tuple[int,int] unitStats = getUnitStats(model);
-	int duplicates = getDuplicates(allLOC);
-	println("
-vol:<volume>
-complexity:<unitStats[0]>
-dups:<duplicates>
-total unit size: <unitStats[1]>
-	");
-	//
-	//lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- myMethods];
-	//rPercent = convertPercentage(unitInfo, totalLOC);
-	//println(complexity(rPercent));
-	//println(size(myMethods));
-	//printStats(1,complexity(rPercent),3,4);
+	real duplicates = getDuplicatePercentage(allLOC);
+	
+	// prints the stats
+	println("vol:<volume> \ncomplexity:<unitStats[0]> \ndups:<duplicates> \ntotal unit size: <unitStats[1]>");
 }
 
 int duplicateRisk(num dupPercent) {
@@ -126,31 +124,21 @@ int countcomplex(Statement impl){
 	return count;
 }
 
+// Function to count the lines without comments
 int countLines(list[str] lines){
 	return size(removeComments(lines));
 }
 
-int getVolume(){
-	return size(getAllLinesCommentFree());
+// Function to get the duplicated percentage
+real getDuplicatePercentage(list[str] lines){
+	return getDuplicates(lines) * 100.0 / toReal(size(lines));
 }
 
-int getDuplicates(){
-list[str] lines = getAllLinesCommentFree();
-	return duplicates(lines);
-}
-
-real getDuplicatePercentage(){
-	list[str] lines = getAllLinesCommentFree();
-	return duplicates(lines) * 100.0 / toReal(size(lines));
-}
-
-map[loc,int] getUnitSizes(){
-	return (m : countLines(readFileLines(m)) | m <- myMethods);
-}
-
+// Function to get all lines without comments
 list[str] getAllLinesCommentFree(M3 myModel){
 	list[str] lines = [];
 	
+	// Iterate over each file, remove the comments and adds it to a list of all lines
 	for	(f <- files(myModel)){
 		lines += removeComments(readFileLines(f));
 	}
