@@ -9,8 +9,8 @@ import lang::java::jdt::m3::AST;
 import util::Math;
 
 public void main() {
-	loc project = |project://smallsql0.21_src|;	
-	//loc project = |project://hsqldb-2.3.1|;
+	//loc project = |project://smallsql0.21_src|;	
+	loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
 	set[loc] myMethods = methods(model);
@@ -268,7 +268,7 @@ void printStats(int volume, int complexity, int duplicate, int unitSize){
 		|Stability      |  <stability>  |
 		+---------------------+
 		|Testability    |  <testability>  |
-		+-------------+-------+");
+		+---------------+-----+");
 }
 
 
