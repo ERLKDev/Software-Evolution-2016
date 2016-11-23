@@ -49,15 +49,6 @@ int locRisk(int totalLOC) {
 	return 0;
 }
 
-int unitRisk(int count) {
-	if (count > 50) risk = 3;
-	if (count > 20 && count < 51) risk = 2;
-	if (count > 10 && count < 21) risk = 1;
-	if (count > 0 && count < 11) risk = 0;
-	return 0;
-}
-
-
 tuple[int,int] getUnitStats(M3 model) {
 	lrel[num, num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
 	int totalUnitLOC = (0 | it + lines | <risk,unitloc,lines> <- unitInfo);
