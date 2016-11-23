@@ -6,6 +6,7 @@ import List;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
+import util::Math;
 
 public void main() {
 	loc project = |project://smallsql0.21_src|;	
@@ -16,19 +17,13 @@ public void main() {
 	allLOC = getAllLinesCommentFree(model);
 	volume = size(allLOC);
 	tuple[int,int] unitStats = getUnitStats(model);
-	int duplicates = getDuplicates(allLOC);
+	real duplicates = getDuplicatePercentage(allLOC);
 	println("
-vol:<volume>
-complexity:<unitStats[0]>
-dups:<duplicates>
-total unit size: <unitStats[1]>
+	vol:<volume>
+	complexity:<unitStats[0]>
+	dups:<duplicates>
+	total unit size: <unitStats[1]>
 	");
-	//
-	//lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- myMethods];
-	//rPercent = convertPercentage(unitInfo, totalLOC);
-	//println(complexity(rPercent));
-	//println(size(myMethods));
-	//printStats(1,complexity(rPercent),3,4);
 }
 
 tuple[int,int] getUnitStats(M3 model) {
@@ -118,20 +113,10 @@ int getVolume(){
 	return size(getAllLinesCommentFree());
 }
 
-int getDuplicates(){
-list[str] lines = getAllLinesCommentFree();
-	return duplicates(lines);
-}
 
-real getDuplicatePercentage(){
-	list[str] lines = getAllLinesCommentFree();
-	return duplicates(lines) * 100.0 / toReal(size(lines));
+real getDuplicatePercentage(list[str] lines){
+	return getDuplicates(lines) * 100.0 / toReal(size(lines));
 }
-
-map[loc,int] getUnitSizes(){
-	return (m : countLines(readFileLines(m)) | m <- myMethods);
-}
-
 
 // Function to get all lines without comments
 list[str] getAllLinesCommentFree(M3 myModel){
