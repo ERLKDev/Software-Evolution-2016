@@ -250,13 +250,11 @@ int getDuplicates(list[str] lines)
 	return duplicates;
 }
 
-
-
 void printStats(int volume, int complexity, int duplicate, int unitSize){
 	
 	int analysability = (volume + duplicate + unitSize) / 3;
 	int changeability = (complexity + duplicate) / 2;
-	int stability = 2;
+	int stability = 0;
 	int testability = (complexity + unitSize) / 2;
 	
 	println("
