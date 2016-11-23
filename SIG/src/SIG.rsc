@@ -7,7 +7,7 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 
-public void init() {
+public void main() {
 	loc project = |project://smallsql0.21_src|;	
 	model = createM3FromEclipseProject(project);
 	myMethods = methods(model);
@@ -15,12 +15,13 @@ public void init() {
 	//Is different from the sum of lines in all units.
 	allLOC = getAllLinesCommentFree(model);
 	volume = size(allLOC);
-	int complexity = getComplexity(model);
+	tuple[int,int] unitStats = getUnitStats(model);
 	int duplicates = getDuplicates(allLOC);
 	println("
 vol:<volume>
-complexity:<complexity>
+complexity:<unitStats[0]>
 dups:<duplicates>
+total unit size: <unitStats[1]>
 	");
 	//
 	//lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- myMethods];
@@ -30,10 +31,10 @@ dups:<duplicates>
 	//printStats(1,complexity(rPercent),3,4);
 }
 
-int getComplexity(M3 model) {
+tuple[int,int] getUnitStats(M3 model) {
 	lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
 	int totalUnitLOC = (0 | it + unitloc | <risk,unitloc> <- unitInfo);
-	return complexity(convertPercentage(unitInfo, totalUnitLOC));
+	return <complexity(convertPercentage(unitInfo, totalUnitLOC)), totalUnitLOC>;
 }
 
 list[num] convertPercentage(lrel[num,num] units, int totalLOC) {
