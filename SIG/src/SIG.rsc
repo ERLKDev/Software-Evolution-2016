@@ -10,20 +10,21 @@ import util::Math;
 
 public void main() {
 	loc project = |project://smallsql0.21_src|;	
-	model = createM3FromEclipseProject(project);
-	myMethods = methods(model);
+	M3 model = createM3FromEclipseProject(project);
+	set[loc] myMethods = methods(model);
+	
 	println("loaded");
-	//Is different from the sum of lines in all units.
-	allLOC = getAllLinesCommentFree(model);
-	volume = size(allLOC);
+	
+	// Gets the lines of codes without comment
+	list[str] allLOC = getAllLinesCommentFree(model);
+	
+	// Gets the volume, unit compexity, unit size and duplicates
+	int volume = size(allLOC);
 	tuple[int,int] unitStats = getUnitStats(model);
 	real duplicates = getDuplicatePercentage(allLOC);
-	println("
-	vol:<volume>
-	complexity:<unitStats[0]>
-	dups:<duplicates>
-	total unit size: <unitStats[1]>
-	");
+	
+	// prints the stats
+	println("vol:<volume> \ncomplexity:<unitStats[0]> \ndups:<duplicates> \ntotal unit size: <unitStats[1]>");
 }
 
 tuple[int,int] getUnitStats(M3 model) {
@@ -105,15 +106,12 @@ int countcomplex(Statement impl){
 	return count;
 }
 
+// Function to count the lines without comments
 int countLines(list[str] lines){
 	return size(removeComments(lines));
 }
 
-int getVolume(){
-	return size(getAllLinesCommentFree());
-}
-
-
+// Function to get the duplicated percentage
 real getDuplicatePercentage(list[str] lines){
 	return getDuplicates(lines) * 100.0 / toReal(size(lines));
 }
