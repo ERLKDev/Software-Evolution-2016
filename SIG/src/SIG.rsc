@@ -31,6 +31,22 @@ total unit size: <unitStats[1]>
 	//printStats(1,complexity(rPercent),3,4);
 }
 
+int duplicateRisk(num dupPercent) {
+	if (dupPercent > 20) return 4;
+	if (dupPercent > 10) return 3;
+	if (dupPercent > 5) return 2;
+	if (dupPercent > 3) return 1;
+	return 0;
+}
+
+int locRisk(int totalLOC) {
+	if (totalLOC > 1310000) return 4;
+	if (totalLOC > 655000) return 3;
+	if (totalLOC > 264000) return 2;
+	if (totalLOC > 66) return 1;
+	return 0;
+}
+
 tuple[int,int] getUnitStats(M3 model) {
 	lrel[num, num] unitInfo = [analyzeUnit(inf, model) | inf <- methods(model)];
 	int totalUnitLOC = (0 | it + unitloc | <risk,unitloc> <- unitInfo);
