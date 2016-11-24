@@ -6,6 +6,12 @@ import List;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
+import ParseTree;
+import vis::Figure;
+import vis::ParseTree;
+import vis::Render;
+
 
 void main(){
 	loc project = |project://TestProject|;	
@@ -14,19 +20,30 @@ void main(){
 	
 	M3 model = createM3FromEclipseProject(project);
 	list[Declaration] asts = [];
-	for (x <- files(model)){
-		 asts += createAstFromFile(x, false);
+	for (m <- methods(model)){
+		 asts += getMethodASTEclipse(m, model=model);
 	}
 	
-	ast = asts[0];
-	
-	visit(ast){
-		case \simpleName(_): println("haha");
-		case \variable(_, _) : println("haha");
-		case \variable(_, _, _): println("haha");
-		case x: println(x);
+	nodes = [];
+	for(ast <- asts){
+		visit(ast){
+			case node x: nodes += x;
+		}
 	}
-	println(asts[0]);
+	
+	println(nodes);
+	for (i <- [0 .. size(nodes)]){
+		a = nodes[i];
+		tmpnodes = delete(nodes, i);
+		if(a in tmpnodes){
+			println();
+			println();
+			println (a);
+			println (tmpnodes[indexOf(tmpnodes, a)]);
+		}
+		
+	}
+	
 		
 }
 

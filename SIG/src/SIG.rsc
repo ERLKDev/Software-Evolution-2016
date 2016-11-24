@@ -9,8 +9,8 @@ import lang::java::jdt::m3::AST;
 import util::Math;
 
 public void main() {
-	//loc project = |project://smallsql0.21_src|;	
-	loc project = |project://hsqldb-2.3.1|;
+	loc project = |project://smallsql0.21_src|;	
+	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
 	set[loc] myMethods = methods(model);
@@ -125,9 +125,9 @@ tuple[num,num,num] analyzeUnit(loc unitLoc, M3 model) {
 	if (count > 50) complexRisk = 3;
  	
  	//PAS AAN
- 	if (lines > 21 && lines < 31) locRisk = 1;
-	if (lines > 30 && lines < 41) locRisk = 2;
-	if (lines > 40) locRisk = 3;
+ 	if (lines > 30 && lines < 45) locRisk = 1;
+	if (lines > 44 && lines < 75) locRisk = 2;
+	if (lines > 74) locRisk = 3;
  	
 	return <complexRisk, locRisk, lines>;
 }
@@ -266,6 +266,7 @@ void printStats(int volume, int complexity, int duplicate, int unitSize){
 	int stability = 0;
 	int testability = (complexity + unitSize) / 2;
 	
+	int maintainability = (analysability + changeability + stability + testability) / 4;
 	println("
 		+---------------------+
 		|Analisability  |  <convertNumberToStr(analysability)>  |
@@ -276,6 +277,9 @@ void printStats(int volume, int complexity, int duplicate, int unitSize){
 		+---------------------+
 		|Testability    |  <convertNumberToStr(testability)>  |
 		+-------------+-------+");
+		
+	
+	println("Maintainability score: <convertNumberToStr(maintainability)>");
 }
 
 
