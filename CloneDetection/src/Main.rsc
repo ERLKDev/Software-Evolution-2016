@@ -20,16 +20,8 @@ void main(){
 	
 	map[node, loc] nodes = getSubTrees(ast);
 	
-	for (i <- [0 .. size(nodes)]){
-		a = nodes[i];
-		tmpnodes = delete(nodes, i);
-		if(a in tmpnodes){
-			println();
-			println();
-			println(n);
-		}
+	getDuplicates(nodes);
 	
-	}		
 }
 
 map[node, loc] getSubTrees(set[Declaration] ast){
@@ -37,12 +29,38 @@ map[node, loc] getSubTrees(set[Declaration] ast){
 	visit(ast){
 		case node x: {
 			if("src" in getAnnotations(x)){
-				println(x);
-				subtrees += (x : x@decl);
+				loc location = getLocFromNode(x);
+				subtrees += (x : location);
 			}
 		}
 	}
 	return subtrees;
+}
+
+
+
+map[node, loc] getDuplicates(map[node, loc] subtrees){
+	
+	map[node, loc] duplicates = ();
+	for (subtree <- subtrees){
+		map[node, loc] remain = delete(subtrees, subtree);
+		
+		println(subtree[0]);
+		if(subtree in remain){
+			duplicates += (subtree[0] : subtree[1]);
+			println(subtree[0]);
+		} 
+	}
+	
+	return duplicates;
+}
+
+loc getLocFromNode(node subTree){
+	if(Declaration x := subTree) return x@src;
+	if(Statement x := subTree) return x@src;
+	if(Expression x := subTree) return x@src;
+	
+	
 }
 
 
