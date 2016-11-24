@@ -6,12 +6,8 @@ import List;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
-import ParseTree;
-import vis::Figure;
-import vis::ParseTree;
-import vis::Render;
 
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
 	loc project = |project://TestProject|;	
@@ -30,10 +26,9 @@ void main(){
 		if(a in tmpnodes){
 			println();
 			println();
-			println (a);
-			println (tmpnodes[indexOf(tmpnodes, a)]);
+			println(n);
 		}
-		
+	
 	}		
 }
 
