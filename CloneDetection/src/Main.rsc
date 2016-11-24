@@ -19,19 +19,11 @@ void main(){
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
-	list[Declaration] asts = [];
-	for (m <- methods(model)){
-		 asts += getMethodASTEclipse(m, model=model);
-	}
+	set[Declaration] ast = createAstsFromEclipseProject(project, false);
+
 	
-	nodes = [];
-	for(ast <- asts){
-		visit(ast){
-			case node x: nodes += x;
-		}
-	}
+	map[node, loc] nodes = getSubTrees(ast);
 	
-	println(nodes);
 	for (i <- [0 .. size(nodes)]){
 		a = nodes[i];
 		tmpnodes = delete(nodes, i);
@@ -42,9 +34,20 @@ void main(){
 			println (tmpnodes[indexOf(tmpnodes, a)]);
 		}
 		
+	}		
+}
+
+map[node, loc] getSubTrees(set[Declaration] ast){
+	map[node, loc] subtrees = ();
+	visit(ast){
+		case node x: {
+			if("src" in getAnnotations(x)){
+				println(x);
+				subtrees += (x : x@decl);
+			}
+		}
 	}
-	
-		
+	return subtrees;
 }
 
 
