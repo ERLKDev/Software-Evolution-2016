@@ -6,6 +6,10 @@ import List;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
+import ParseTree;
+import vis::Figure;
+import vis::ParseTree;
+import vis::Render;
 
 void main(){
 	loc project = |project://TestProject|;	
@@ -13,21 +17,28 @@ void main(){
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
-	list[Declaration] asts = [];
-	for (x <- files(model)){
-		 asts += createAstFromFile(x, false);
+	
+	for (myMethod <- methods(model)) {
+		ast = getMethodASTEclipse(myMethod, model=model);
+		nodes = [];
+		println();
+		println();
+		println();
+		println();
+		visit(ast) {
+			case m: \method(_,_,_,_, Statement impl): nodes += m;
+		}
+		for (n <- nodes) {
+			println();
+			println(n);
+		}
 	}
 	
-	ast = asts[0];
-	
-	visit(ast){
-		case \simpleName(_): println("haha");
-		case \variable(_, _) : println("haha");
-		case \variable(_, _, _): println("haha");
-		case x: println(x);
-	}
-	println(asts[0]);
-		
 }
-
-
+//
+//void visitStatement(Statement impl) {
+//	visit(impl) {
+//		case s: \Statement();
+//	}
+//}
+//
