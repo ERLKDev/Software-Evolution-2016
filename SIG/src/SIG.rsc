@@ -7,10 +7,18 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import util::Math;
+import util::Benchmark;
 
 public void main() {
-	loc project = |project://smallsql0.21_src|;	
-	//loc project = |project://hsqldb-2.3.1|;
+	map[str, num] runtime = benchmark(("total tests" : void() {analyze();}));
+	num runtimeSec = runtime["total tests"]/1000;
+	println("Total runtime in seconds: <runtimeSec>");
+}
+
+public void analyze() {
+	//loc project = |project://smallsql0.21_src|;	
+	loc project = |project://hsqldb-2.3.1|;
+
 	
 	M3 model = createM3FromEclipseProject(project);
 	set[loc] myMethods = methods(model);
@@ -124,9 +132,8 @@ tuple[num,num,num] analyzeUnit(loc unitLoc, M3 model) {
 	if (count > 20 && count < 51) complexRisk = 2;
 	if (count > 50) complexRisk = 3;
  	
- 	//PAS AAN
- 	if (lines > 30 && lines < 45) locRisk = 1;
-	if (lines > 44 && lines < 75) locRisk = 2;
+ 	if (lines < 30 && lines < 45) locRisk = 1;
+	if (lines < 44 && lines < 75) locRisk = 2;
 	if (lines > 74) locRisk = 3;
  	
 	return <complexRisk, locRisk, lines>;

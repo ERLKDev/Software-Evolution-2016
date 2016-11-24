@@ -6,12 +6,8 @@ import List;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
-import ParseTree;
-import vis::Figure;
-import vis::ParseTree;
-import vis::Render;
 
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
 	loc project = |project://TestProject|;	
@@ -19,32 +15,21 @@ void main(){
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
-	list[Declaration] asts = [];
-	for (m <- methods(model)){
-		 asts += getMethodASTEclipse(m, model=model);
-	}
+
 	
-	nodes = [];
-	for(ast <- asts){
-		visit(ast){
-			case node x: nodes += x;
+	for (myMethod <- methods(model)) {
+		ast = getMethodASTEclipse(myMethod, model=model);
+		nodes = [];
+		println();
+		println();
+		println();
+		println();
+		visit(ast) {
+			case m: \method(_,_,_,_, Statement impl): nodes += m;
+		}
+		for (n <- nodes) {
+			println();
+			println(n);
 		}
 	}
-	
-	println(nodes);
-	for (i <- [0 .. size(nodes)]){
-		a = nodes[i];
-		tmpnodes = delete(nodes, i);
-		if(a in tmpnodes){
-			println();
-			println();
-			println (a);
-			println (tmpnodes[indexOf(tmpnodes, a)]);
-		}
-		
-	}
-	
-		
 }
-
-
