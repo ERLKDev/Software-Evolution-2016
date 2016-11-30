@@ -19,20 +19,21 @@ void main(){
 	println("loaded");
 	
 	println(ast);
-	map[int, list[list[node]]] bins = subtreesToBins(ast, 5);
+	
+	map[int, list[list[node]]] bins = subtreesToBins(ast, 1);
 	for (kut <- bins) {
 		println("<kut>: <size(bins[kut])>");
 	}
 	println("loaded2");
 	
-	//list[node] duplicates = getDuplicates(bins);
+	list[node] duplicates = getDuplicates(bins);
 	
 	println("done");
-	//for(d <- duplicates){
-	//	println();
-	//	println();
-	//	println(d);
-	//}
+	for(d <- duplicates){
+		println();
+		println();
+		println(d);
+	}
 	
 }
 
@@ -45,7 +46,7 @@ map[int, list[list[node]]] subtreesToBins(set[Declaration] ast, int granularity)
 				list[node] l = children2List(x);
 				int weight = size(l);  
 
-				if (weight > 40) {
+				if (weight > 5) {
 					int index = weight / granularity;
 					if(index in bins){
 						bins += (index: bins[index] + [l]);
@@ -85,11 +86,7 @@ list[node] getDuplicates(map[int, list[list[node]]] bins){
 			for (y <- processed){
 				if (similarity(bin[x], y) >= 100){
 					list[node] sorted_nodes = sort(bin[x], bool(node a, node b){ return size(toString(a)) > size(toString(b)); });
-					loc loc_x = getLocFromNode(sorted_nodes[0]);
-					loc loc_y = getLocFromNode(y[0]);
-					
-					if(!(loc_x >= loc_y || loc_y >= loc_x))
-						duplicates += sorted_nodes[0];
+					duplicates += sorted_nodes[0];
 				}
 			}
 			processed += (bin[x] : 0);
@@ -144,6 +141,7 @@ loc getLocFromNode(node subTree){
 	if(Declaration x := subTree) return x@src;
 	if(Statement x := subTree) return x@src;
 	if(Expression x := subTree) return x@src;
+	
 }
 
 
