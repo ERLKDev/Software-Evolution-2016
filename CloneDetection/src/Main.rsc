@@ -117,7 +117,7 @@ set[Declaration] normTree(set[Declaration] ast){
 		case \vararg(a, _) => \vararg(a, "var")
 		case \parameter(a, _, b) => \parameter(a, "var", b)  
 		case \methodCall(a, _, b) => \methodCall(a, "var", b)
-		case \methodCall(a, _, b, c) => \methodCall(a, "var", b, c)
+		case \methodCall(a, b, _, c) => \methodCall(a, b, "var", c)
 		case \fieldAccess(a, _) => \fieldAccess(a, "var") 
 		case \fieldAccess(a, b, _) => \fieldAccess(a, b, "var")
 		case \simpleName(_) => \simpleName("var")
