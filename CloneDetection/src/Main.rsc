@@ -10,40 +10,42 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
-	//loc project = |project://TestProject|;	
-	loc project = |project://smallsql0.21_src|;	
+	loc project = |project://TestProject|;	
+	//loc project = |project://smallsql0.21_src|;	
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
-	set[Declaration] ast = createAstsFromEclipseProject(project, false);
+	set[Declaration] ast = normTree(createAstsFromEclipseProject(project, false));
 	println("loaded");
 	
-	map[int, list[node]] bins = subtreesToBins(ast, 10);
+	println(ast);
+	map[int, list[list[node]]] bins = subtreesToBins(ast, 5);
 	for (kut <- bins) {
 		println("<kut>: <size(bins[kut])>");
 	}
 	println("loaded2");
 	
-	list[node] duplicates = getDuplicates(bins);
+	//list[node] duplicates = getDuplicates(bins);
 	
 	println("done");
-	for(d <- duplicates){
-		println();
-		println();
-		println(d);
-	}
+	//for(d <- duplicates){
+	//	println();
+	//	println();
+	//	println(d);
+	//}
 	
 }
 
 map[int, list[list[node]]] subtreesToBins(set[Declaration] ast, int granularity){
-	map[int, list[node]] bins = ();
+	map[int, list[list[node]]] bins = ();
 	visit(ast){
 		case node x: {
 			if("src" in getAnnotations(x)){
 				loc location = getLocFromNode(x);
-				list[node] l = node2List(x);
+				list[node] l = children2List(x);
 				int weight = size(l);  
-				if (weight > 20) {
+
+				if (weight > 40) {
 					int index = weight / granularity;
 					if(index in bins){
 						bins += (index: bins[index] + [l]);
@@ -69,42 +71,51 @@ bool sortNodes(node a, node b){
 	return a > b;
 }
 
-list[node] getDuplicates(map[int, list[node]] bins){
+list[node] getDuplicates(map[int, list[list[node]]] bins){
 	
 	println("startdup");
 	list[node] duplicates = [];
 	int k = 0;
 	for (i <- bins){
 		println("dup");
-		list[node] bin = bins[i];
+		list[list[node]] bin = bins[i];
+		map[list[node], int] processed = ();
 		
 		for(x <- [0 .. size(bin)]){
-			for (y <- [x + 1 .. size(bin)]){
-				if (similarity(bin[x], bin[y]) >= 100){
-					duplicates += bin[x];
+			for (y <- processed){
+				if (similarity(bin[x], y) >= 100){
+					list[node] sorted_nodes = sort(bin[x], bool(node a, node b){ return size(toString(a)) > size(toString(b)); });
+					loc loc_x = getLocFromNode(sorted_nodes[0]);
+					loc loc_y = getLocFromNode(y[0]);
+					
+					if(!(loc_x >= loc_y || loc_y >= loc_x))
+						duplicates += sorted_nodes[0];
 				}
 			}
+			processed += (bin[x] : 0);
 		}
 		k += 1;
 		println("<k> / <size(bins)>");
 	}
 	
-	return duplicates;
+	return dup(duplicates);
 }
 
-int similarity(node x, node y){
-	list[node] list_x = [];
-	list[node] list_y = [];
-	
-	visit(x){
-		case node a: list_x += a; 
+
+set[Declaration] normTree(set[Declaration] ast){
+	visit(ast){
+		case \variable(x, a, b) => \variable("var", a, b)
+		case \variable(x, a) => \variable("var", a)
+		
 	}
-	
-	visit(y){
-		case node b: list_y += b; 
-	}
-	
-	return (200 * size(list_x & list_y)) / (2 * size(list_x & list_y) +  size(list_x - list_y) + size(list_y - list_x));
+	return ast;
+}
+
+
+int similarity(list[node] list_x, list[node] list_y){
+	int a = size(list_x & list_y);
+		
+	return (200 * a) / (2 * a +  size(list_x - list_y) + size(list_y - list_x));
 }
 
 node toNode(value x){
