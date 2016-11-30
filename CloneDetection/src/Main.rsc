@@ -16,38 +16,54 @@ void main(){
 	
 	M3 model = createM3FromEclipseProject(project);
 	set[Declaration] ast = createAstsFromEclipseProject(project, false);
-
+	println("loaded");
 	
-	list[node] nodes = getSubTrees(ast);
-	
-	list[node] duplicates = getDuplicates(nodes);
-	
-	for(d <- duplicates){
-		println();
-		println();
-		println(d);
+	map[int, list[node]] bins = subtreesToBins(ast, 10);
+	for (kut <- bins) {
+		println("<kut>: <size(bins[kut])>");
 	}
+	//list[node] duplicates = getDuplicates(nodes);
+	//
+	//for(d <- duplicates){
+	//	println();
+	//	println();
+	//	println(d);
+	//}
 	
 }
 
-list[node] getSubTrees(set[Declaration] ast){
-	list[node] subtrees = [];
+map[int, list[node]] subtreesToBins(set[Declaration] ast, int granularity){
+	map[int, list[node]] bins = ();
 	visit(ast){
 		case node x: {
 			if("src" in getAnnotations(x)){
 				loc location = getLocFromNode(x);
-				subtrees += x;
+				weight = getWeight(x); 
+				if (weight > 5) {
+					int index = weight / granularity;
+					if(index in bins){
+						bins += (index: bins[index] + x);
+					}else {
+						bins += (index: [x]);
+					}
+				}
 			}
 		}
 	}
-	return sort(subtrees, sortNodes);
+	return bins;
 }
 
 bool sortNodes(node a, node b){
 	return a > b;
 }
 
-
+int getWeight(node sub){
+	int children = 0;
+	visit (sub) {
+		case node child: children += 1;
+	}
+	return children;
+}
 
 list[node] getDuplicates(list[node] subtrees){
 	
