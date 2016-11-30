@@ -103,10 +103,19 @@ list[node] getDuplicates(map[int, list[list[node]]] bins){
 
 
 set[Declaration] normTree(set[Declaration] ast){
-	visit(ast){
-		case \variable(x, a, b) => \variable("var", a, b)
-		case \variable(x, a) => \variable("var", a)
+	ast = visit(ast){
+		case \variable(_, a, b) => \variable("var", a, b)
+		case \variable(_, a) => \variable("var", a)
 		
+		case \vararg(a, _) => \vararg(a, "var")
+		case \parameter(a, _, b) => \parameter(a, "var", b)  
+		case \methodCall(a, _, b) => \methodCall(a, "var", b)
+		case \methodCall(a, _, b, c) => \methodCall(a, "var", b, c)
+		case \fieldAccess(a, _) => \fieldAccess(a, "var") 
+		case \fieldAccess(a, b, _) => \fieldAccess(a, b, "var")
+		case \simpleName(_) => \simpleName("var")
+     	case \memberValuePair(_, a) => \memberValuePair("var", a)
+     	case \label(_, a) => \label("var", a) 
 	}
 	return ast;
 }
