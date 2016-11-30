@@ -35,19 +35,20 @@ void main(){
 	
 }
 
-map[int, list[node]] subtreesToBins(set[Declaration] ast, int granularity){
+map[int, list[list[node]]] subtreesToBins(set[Declaration] ast, int granularity){
 	map[int, list[node]] bins = ();
 	visit(ast){
 		case node x: {
 			if("src" in getAnnotations(x)){
 				loc location = getLocFromNode(x);
-				weight = getWeight(x); 
+				list[node] l = node2List(x);
+				int weight = size(l);  
 				if (weight > 20) {
 					int index = weight / granularity;
 					if(index in bins){
-						bins += (index: bins[index] + x);
+						bins += (index: bins[index] + [l]);
 					}else {
-						bins += (index: [x]);
+						bins += (index: [l]);
 					}
 				}
 			}
@@ -56,16 +57,16 @@ map[int, list[node]] subtreesToBins(set[Declaration] ast, int granularity){
 	return bins;
 }
 
-bool sortNodes(node a, node b){
-	return a > b;
+list[node] children2List(node a) {
+	list[node] l = [];
+	visit(a) {
+		case node x: l += x;
+	}
+	return l;
 }
 
-int getWeight(node sub){
-	int children = 0;
-	visit (sub) {
-		case node child: children += 1;
-	}
-	return children;
+bool sortNodes(node a, node b){
+	return a > b;
 }
 
 list[node] getDuplicates(map[int, list[node]] bins){
