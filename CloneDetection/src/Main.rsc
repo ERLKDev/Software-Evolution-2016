@@ -106,7 +106,14 @@ set[Declaration] normTree(set[Declaration] ast){
 	ast = visit(ast){
 		case \variable(_, a, b) => \variable("var", a, b)
 		case \variable(_, a) => \variable("var", a)
-		
+		case \enum(_, a, b, c) => \enum("var", a, b, c)
+		case \enumConstant(_, a, b) => \enumConstant("var", a, b)
+		case \enumConstant(_, a) => \enumConstant("var", a)
+		case \class(_, a, b, c) => \class("var", a, b, c)
+		case \method(a, _, b, c, d) => \method(a, "var", b, c, d)
+		case \method(a, _, b, c) => \method(a, "var", b, c)
+		case \constructor(_, a, b, c) => \constructor("var", a, b, c)
+
 		case \vararg(a, _) => \vararg(a, "var")
 		case \parameter(a, _, b) => \parameter(a, "var", b)  
 		case \methodCall(a, _, b) => \methodCall(a, "var", b)
