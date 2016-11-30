@@ -10,8 +10,8 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
-	loc project = |project://TestProject|;	
-	//loc project = |project://smallsql0.21_src|;	
+	//loc project = |project://TestProject|;	
+	loc project = |project://smallsql0.21_src|;	
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
@@ -22,13 +22,16 @@ void main(){
 	for (kut <- bins) {
 		println("<kut>: <size(bins[kut])>");
 	}
-	//list[node] duplicates = getDuplicates(nodes);
-	//
-	//for(d <- duplicates){
-	//	println();
-	//	println();
-	//	println(d);
-	//}
+	println("loaded2");
+	
+	list[node] duplicates = getDuplicates(bins);
+	
+	println("done");
+	for(d <- duplicates){
+		println();
+		println();
+		println(d);
+	}
 	
 }
 
@@ -39,7 +42,7 @@ map[int, list[node]] subtreesToBins(set[Declaration] ast, int granularity){
 			if("src" in getAnnotations(x)){
 				loc location = getLocFromNode(x);
 				weight = getWeight(x); 
-				if (weight > 5) {
+				if (weight > 20) {
 					int index = weight / granularity;
 					if(index in bins){
 						bins += (index: bins[index] + x);
@@ -65,29 +68,24 @@ int getWeight(node sub){
 	return children;
 }
 
-list[node] getDuplicates(list[node] subtrees){
+list[node] getDuplicates(map[int, list[node]] bins){
 	
+	println("startdup");
 	list[node] duplicates = [];
-	
-	for (i <- [0 .. size(subtrees)]){
+	int k = 0;
+	for (i <- bins){
+		println("dup");
+		list[node] bin = bins[i];
 		
-		list[node] remain = delete(subtrees, i);
-		
-		node subtree = subtrees[i];
-		
-		for (j <- [0 .. size(remain)]){
-			similarity(subtree, remain[j]); 
+		for(x <- [0 .. size(bin)]){
+			for (y <- [x + 1 .. size(bin)]){
+				if (similarity(bin[x], bin[y]) >= 100){
+					duplicates += bin[x];
+				}
+			}
 		}
-		
-		
-		//if(subtree in remain){
-		//	duplicates += subtree;
-		//	for (x <- getChildren(subtree)){
-		//		if (x in duplicates){
-		//			duplicates = delete(duplicates, indexOf(duplicates, x));
-		//		}
-		//	}
-		//} 
+		k += 1;
+		println("<k> / <size(bins)>");
 	}
 	
 	return duplicates;
@@ -105,7 +103,7 @@ int similarity(node x, node y){
 		case node b: list_y += b; 
 	}
 	
-	return 0;
+	return (200 * size(list_x & list_y)) / (2 * size(list_x & list_y) +  size(list_x - list_y) + size(list_y - list_x));
 }
 
 node toNode(value x){
