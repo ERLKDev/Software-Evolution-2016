@@ -124,7 +124,6 @@ set[Declaration] normTree(set[Declaration] ast){
 	return ast;
 }
 
-
 int similarity(list[node] list_x, list[node] list_y){
 	int a = size(list_x & list_y);
 		
