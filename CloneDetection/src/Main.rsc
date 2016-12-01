@@ -108,7 +108,6 @@ Declaration normTree(Declaration ast){
 	return ast;
 }
 
-
 loc getLocFromNode(node subTree){
 	if(Declaration x := subTree) return x@src;
 	if(Statement x := subTree) return x@src;
