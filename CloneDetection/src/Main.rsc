@@ -27,11 +27,12 @@ void main(){
 	map[node, list[loc]] duplicates = getDuplicates(subtrees);
 	
 	println("done");
-	for(d <- duplicates){
-		println();
-		println();
-		println("\n\n<d> \n : <duplicates[d]>");
-	}
+	//for(d <- duplicates){
+	//	println();
+	//	println();
+	//	println("\n\n<d> \n : <duplicates[d]>");
+	//}
+	writeToFile(duplicates);
 }
 
 
@@ -115,4 +116,13 @@ loc getLocFromNode(node subTree){
 	
 }
 
-
+void writeToFile(map[node, list[loc]] duplicates){
+	loc location = |project://TestProject/blader.tmp|;
+	for(hit <- duplicates){
+		str out = ""; 
+		for (dup <- duplicates[hit]){
+			out += "<dup> ";
+		}
+	writeFile(location, out);
+	}
+}
