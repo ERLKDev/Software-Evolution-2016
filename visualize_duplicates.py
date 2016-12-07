@@ -48,8 +48,9 @@ class DuplicateClass():
 
         return str_format
 
-if __name__ == '__main__':
-    f = open('TestProject/blader.tmp', 'r')
+
+def convertRascalToDups(path):
+    f = open(path, 'r')
     regex = r"\|(\w*\+\w*)(?:\:\/\/\/|\/\))([\w(-|_)\/]*)\|(\([0-9]*,[0-9]*,<[0-9]*,[0-9]*>,<[0-9]*,[0-9]*>\))"
     duplist = []
     for p in f.readlines():
@@ -60,5 +61,9 @@ if __name__ == '__main__':
             rascal_location = match.group(3)
             dups.add_duplicate(path, rascal_location)
         duplist.append(dups)
+    return duplist
+
+if __name__ == '__main__':
+    duplist = convertRascalToDups('TestProject/blader.tmp')
     for dup in duplist:
         print dup
