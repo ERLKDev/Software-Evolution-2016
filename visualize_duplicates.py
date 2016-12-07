@@ -8,14 +8,14 @@ class Location():
     def __init__(self, rascal_location):
         self.start, self.end = self.convert_rascal_location(rascal_location)
 
-    def convert_rascal_location(self, rascal_location):
+    def convertRascalLocation(self, rascal_location):
         matches = re.finditer(row_reg, rascal_location)
         for match in matches:
              start = match.group(1)
              end = match.group(2)
         return (start,end)
 
-    def get_loc(self):
+    def getLoc(self):
         return (self.start, self.end)
 
     def __str__(self):
@@ -31,7 +31,7 @@ class DuplicateClass():
         self.duplicates = {}
         return
 
-    def add_duplicate(self, path, duplicate_loc):
+    def addDuplicate(self, path, duplicate_loc):
         loc = Location(duplicate_loc)
 
         if path in self.duplicates.keys():
@@ -39,13 +39,13 @@ class DuplicateClass():
         else:
             self.duplicates[path] = [loc]
 
-    def get_dups(self):
-        return self.duplicates        
+    def getDups(self):
+        return self.duplicates
+
     def __str__(self):
         str_format = ""
         for k in self.duplicates.keys():
             str_format += "{0} {1}\n".format(k, self.duplicates[k])
-
         return str_format
 
 if __name__ == '__main__':

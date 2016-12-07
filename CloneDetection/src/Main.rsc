@@ -114,6 +114,7 @@ loc getLocFromNode(node subTree){
 	if(Expression x := subTree) return x@src;
 	
 }
+
 void writeToFile(map[node, list[loc]] duplicates){
 	loc location = |project://TestProject/blader.tmp|;
 	str out = "";
