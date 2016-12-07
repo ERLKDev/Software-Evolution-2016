@@ -10,8 +10,8 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
-	//loc project = |project://TestProject|;	
-	loc project = |project://smallsql0.21_src|;	
+	loc project = |project://TestProject|;	
+	//loc project = |project://smallsql0.21_src|;	
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
