@@ -15,17 +15,22 @@ class Location():
              end = match.group(2)
         return (start,end)
 
+    def get_loc(self):
+        return (self.start, self.end)
+
     def __str__(self):
         return "Start: {0}, End: {1}".format(self.start, self.end)
 
     def __repr__(self):
         return "(Start: {0}; End: {1})".format(self.start, self.end)
 
+
 class DuplicateClass():
-    duplicates = {}
 
     def __init__(self):
+        self.duplicates = {}
         return
+
     def add_duplicate(self, path, duplicate_loc):
         loc = Location(duplicate_loc)
 
@@ -34,6 +39,8 @@ class DuplicateClass():
         else:
             self.duplicates[path] = [loc]
 
+    def get_dups(self):
+        return self.duplicates        
     def __str__(self):
         str_format = ""
         for k in self.duplicates.keys():
@@ -44,6 +51,7 @@ class DuplicateClass():
 if __name__ == '__main__':
     f = open('TestProject/blader.tmp', 'r')
     regex = r"\|(\w*\+\w*)(?:\:\/\/\/|\/\))([\w(-|_)\/]*)\|(\([0-9]*,[0-9]*,<[0-9]*,[0-9]*>,<[0-9]*,[0-9]*>\))"
+    duplist = []
     for p in f.readlines():
         dups = DuplicateClass()
         matches = re.finditer(regex, p)
@@ -51,4 +59,6 @@ if __name__ == '__main__':
             path = match.group(2)
             rascal_location = match.group(3)
             dups.add_duplicate(path, rascal_location)
-        print dups
+        duplist.append(dups)
+    for dup in duplist:
+        print dup
