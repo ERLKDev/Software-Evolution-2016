@@ -51,17 +51,20 @@ def convertRascalToDups(path):
     f = open(path, 'r')
     regex = r"\|(\w*\+\w*)(?:\:\/\/\/|\/\))([\w(-|_)\/]*)\|(\([0-9]*,[0-9]*,<[0-9]*,[0-9]*>,<[0-9]*,[0-9]*>\))"
     duplist = []
+    files = []
     for p in f.readlines():
         dups = DuplicateClass()
         matches = re.finditer(regex, p)
         for match in matches:
             path = match.group(2)
+            if path not in files:
+                files.append(path)
             rascalLocation = match.group(3)
             dups.addDuplicate(path, rascalLocation)
         duplist.append(dups)
-    return duplist
+    return (files, duplist)
 
 if __name__ == '__main__':
-    duplist = convertRascalToDups('TestProject/blader.tmp')
+    files, duplist = convertRascalToDups('TestProject/blader.tmp')
     for dup in duplist:
         print dup
