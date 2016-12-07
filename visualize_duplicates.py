@@ -6,7 +6,7 @@ row_reg = r"\((?:[0-9]*,[0-9]*,)<([0-9]*),(?:[0-9]*)>,<([0-9]*),(?:[0-9]*)>\)"
 
 class Location():
     def __init__(self, rascal_location):
-        self.start, self.end = self.convert_rascal_location(rascal_location)
+        self.start, self.end = self.convertRascalLocation(rascal_location)
 
     def convertRascalLocation(self, rascal_location):
         matches = re.finditer(row_reg, rascal_location)
@@ -45,7 +45,7 @@ class DuplicateClass():
     def __str__(self):
         str_format = ""
         for k in self.duplicates.keys():
-            str_format += "{0} {1}\n".format(k, self.duplicates[k])
+            str_format += "{0} {1}".format(k, self.duplicates[k])
         return str_format
 
 
