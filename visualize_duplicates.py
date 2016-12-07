@@ -1,10 +1,8 @@
 import re
-from random import randint
-
-row_reg = r"\((?:[0-9]*,[0-9]*,)<([0-9]*),(?:[0-9]*)>,<([0-9]*),(?:[0-9]*)>\)"
-
 
 class Location():
+    row_reg = r"\((?:[0-9]*,[0-9]*,)<([0-9]*),(?:[0-9]*)>,<([0-9]*),(?:[0-9]*)>\)"
+
     def __init__(self, rascal_location):
         self.start, self.end = self.convertRascalLocation(rascal_location)
 
