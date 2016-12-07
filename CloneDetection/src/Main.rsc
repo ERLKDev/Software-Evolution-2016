@@ -10,8 +10,8 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
-	loc project = |project://TestProject|;	
-	//loc project = |project://smallsql0.21_src|;	
+	//loc project = |project://TestProject|;	
+	loc project = |project://smallsql0.21_src|;	
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
@@ -27,11 +27,12 @@ void main(){
 	map[node, list[loc]] duplicates = getDuplicates(subtrees);
 	
 	println("done");
-	for(d <- duplicates){
-		println();
-		println();
-		println("\n\n<d> \n : <duplicates[d]>");
-	}
+	//for(d <- duplicates){
+	//	println();
+	//	println();
+	//	println("\n\n<d> \n : <duplicates[d]>");
+	//}
+	writeToFile(duplicates);
 }
 
 
@@ -66,7 +67,6 @@ map[node, list[loc]] getDuplicates(list[node] subtrees){
 	map[node, loc] processed = ();
 	
 	for (subtree <- subtrees){
-		println(subtree);
 		loc subtree_loc =  getLocFromNode(subtree);
 		if (subtree in processed){
 			if (subtree in duplicates)
@@ -114,5 +114,14 @@ loc getLocFromNode(node subTree){
 	if(Expression x := subTree) return x@src;
 	
 }
-
-
+void writeToFile(map[node, list[loc]] duplicates){
+	loc location = |project://TestProject/blader.tmp|;
+	str out = "";
+	for(hit <- duplicates){
+		for (dup <- duplicates[hit]){
+			out += "<dup> ";
+		}
+		out += "\n";
+	writeFile(location, out);
+	}
+}
