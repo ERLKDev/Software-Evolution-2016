@@ -20,19 +20,23 @@ import matplotlib.colors as colors
 from kivy.uix.codeinput import CodeInput
 from pygments.lexers import CythonLexer
 
+from visualize_duplicates import *
+
 
 
 class MenuScreen(Screen):
-	def __init__ (self,**kwargs):
+	def __init__ (self, **kwargs):
 		super (MenuScreen, self).__init__(**kwargs)
+
+		self.duplist = duplist
 
 		layout = GridLayout(cols=1, padding=10, spacing=10,
 		        size_hint=(None, None), width=750)
 
 		layout.bind(minimum_height=layout.setter('height'))
 
-		for i in range(30):
-		    btn = Button(text=str(i), size=(750, 40),
+		for dupfile in dupfiles:
+		    btn = Button(text=dupfile, size=(750, 40),
 		                 size_hint=(None, None))
 		    btn.bind(on_release=self.openDocView)
 		    layout.add_widget(btn)
@@ -45,19 +49,28 @@ class MenuScreen(Screen):
 		self.add_widget(root)
 
 	def openDocView(self, obj):
-		sm.add_widget(DocView(name='docView', file_name = obj.text))
+		dupClasses = []
+		dupFiles = []
+		for x in self.duplist:
+			keys = x.getDups().keys()
+			if obj.text in keys:
+				dupClasses.append(x)
+				for y in keys:
+					if y not in dupFiles:
+						with open(y) as f:
+							dupFiles.append((y, len(f.readlines())))
+
+		sm.add_widget(DocView(name='docView', file_name=obj.text, dupClasses=dupClasses, dupFiles=dupFiles))
 		sm.current = 'docView'
 
 
 class DocView(Screen):
-	def __init__ (self, file_name, **kwargs):
+	def __init__ (self, file_name, dupClasses, dupFiles, **kwargs):
 		super (DocView, self).__init__(**kwargs)
 
-		self.sf = 2.0
+		self.sf = 1.0
 		self.size = Window.size
-		self.file_name = file_name
-
-		files = [("a", 200), ("b", 300), ("c", 400),  ("d", 400),  ("e", 400),  ("f", 400),  ("g", 400)]
+		self.file_name = file_name		
 
 		parent = Widget()
 
@@ -132,7 +145,8 @@ class DocView(Screen):
 
 # Create the screen manager
 sm = ScreenManager()
-sm.add_widget(MenuScreen(name='menu'))
+dupfiles, duplist = convertRascalToDups('TestProject/blader.tmp')
+sm.add_widget(MenuScreen(name='menu', dupfiles=dupfiles, duplist=duplist))
 
 class TestApp(App):
 
