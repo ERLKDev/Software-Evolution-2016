@@ -58,8 +58,8 @@ def convertRascalToDups(path):
         matches = re.finditer(regex, p)
         for match in matches:
             path = match.group(2)
-            rascal_location = match.group(3)
-            dups.add_duplicate(path, rascal_location)
+            rascalLocation = match.group(3)
+            dups.addDuplicate(path, rascalLocation)
         duplist.append(dups)
     return duplist
 
