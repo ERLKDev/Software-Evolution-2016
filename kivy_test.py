@@ -22,8 +22,6 @@ from pygments.lexers import CythonLexer
 
 from visualize_duplicates import *
 
-
-
 class MenuScreen(Screen):
     def __init__ (self, **kwargs):
         super (MenuScreen, self).__init__(**kwargs)
@@ -73,7 +71,7 @@ class DocView(Screen):
         super (DocView, self).__init__(**kwargs)
 
         #print dupFiles
-        self.height_constant = 3.0
+        self.height_constant = 5.0
         self.sf = 1.0
         self.size = Window.size
         self.file_name = file_name      
@@ -133,12 +131,12 @@ class DocView(Screen):
                 for dup in duplicates:
                     start, end = dup.getLoc()
 
-                    dupLoc = (end - start) * self.height_constant
+                    dupLoc = (end - start + 1) * self.height_constant
 
                     dup_height = (dupLoc) / float(height + 20)
 
                     dup_pos = ((height) - (start * self.height_constant)) - dupLoc
-                    button = Button(text="%d-%d:%d" % (start, end, end - start + 1), size_hint=(1, dup_height), pos=(0, dup_pos), background_color=rgba)
+                    button = Button(text="%d-%d:%d" % (start, end, end - start + 1), size_hint=(1.0, dup_height), pos=(0, dup_pos), background_color=rgba)
                     button.bind(on_release= self.dupClicked(path, start, end))
                     layout.add_widget(button)
             i += 1
