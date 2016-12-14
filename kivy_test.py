@@ -35,7 +35,7 @@ class MenuScreen(Screen):
 
         layout.bind(minimum_height=layout.setter('height'))
 
-        for dupfile in dupfiles:
+        for dupfile in dupfiles.keys():
             btn = Button(text=dupfile, size=(750, 40),
                          size_hint=(None, None))
             btn.bind(on_release=self.openDocView)
@@ -50,15 +50,15 @@ class MenuScreen(Screen):
 
     def openDocView(self, obj):
         dupClasses = []
-        dupFiles = []
+        dupFiles = {}
         for x in self.duplist:
             keys = x.getDups().keys()
             if obj.text in keys:
                 dupClasses.append(x)
                 for y in keys:
-                    if y not in dupFiles:
+                    if y not in dupFiles.keys():
                         with open(y) as f:
-                            dupFiles.append((y, len(f.readlines())))
+                            dupFiles[y] = len(f.readlines())
 
         sm.add_widget(DocView(name='docView', file_name=obj.text, dupClasses=dupClasses, dupFiles=dupFiles))
         sm.current = 'docView'
@@ -68,6 +68,8 @@ class DocView(Screen):
     def __init__ (self, file_name, dupClasses, dupFiles, **kwargs):
         super (DocView, self).__init__(**kwargs)
 
+        #print dupFiles
+        self.height_constant = 3.0
         self.sf = 1.0
         self.size = Window.size
         self.file_name = file_name      
@@ -76,8 +78,13 @@ class DocView(Screen):
 
         screen_size = self.size
 
-        if len(files) * 220 + 200 > screen_size[1]:
-            self.sf = (len(files) * 220 + 200) / float(screen_size[0])  
+        if len(dupFiles) * 220 + 200 > screen_size[0]:
+            self.sf = (len(dupFiles) * 220 + 200) / float(screen_size[0])  
+
+        max_height = dupFiles[max(dupFiles, key=dupFiles.get)] * self.height_constant *1.4
+        print max_height
+        if max_height > screen_size[1] and self.sf < max_height / float(screen_size[1]):
+            self.sf = max_height / float(screen_size[1])
 
         s = ScatterPlane(scale=1/self.sf, do_scale=True, do_rotation=False)
         parent.add_widget(s)
@@ -88,55 +95,74 @@ class DocView(Screen):
         parent.add_widget(clearbtn)
 
         index = 0
-        for x in files:
-            self.addBlock(s, x[1], [(140, 23), (30, 20)], x[0], index)
+        max_height = 0
+        for x in dupFiles:
+            self.addBlock(s, dupFiles[x], dupClasses, x, index)
+            if dupFiles[x] * self.height_constant > max_height:
+                max_height = dupFiles[x] * self.height_constant
+
             index += 1
+
         self.add_widget(parent)
 
-    def addBlock(self, view, loc, dups, path, index):
-        height = loc
+    def addBlock(self, view, loc, dupsClasses, path, index):
+        height = loc * self.height_constant
 
-        norm  = colors.Normalize(vmin=0, vmax=len(dups))
+        norm  = colors.Normalize(vmin=0, vmax=len(dupsClasses))
         color_map = cmx.ScalarMappable(norm=norm, cmap='hsv') 
 
-        layout = RelativeLayout(size=(200, height), pos=(0 + (220 * index), ((self.size[1] / 2.0) * self.sf - (height / 2.0))))
+        layout = RelativeLayout(size=(200, height + 20), pos=(0 + (220 * index), ((self.size[1] / 2.0) * self.sf - (height / 2.0))))
         with layout.canvas:
             Color(1., 1., 1.)
-            Rectangle(pos=(0, 0), size=(200, height))
+            Rectangle(pos=(0, 0), size=(200, height + 20))
 
 
-        l = Label(text=path, font_size='30sp', color=(0, 0, 0, 1), pos=(0,(height/2.0) - 10))
+        l = Label(text=path.split("/")[-1], font_size='10sp', color=(0, 0, 0, 1), pos=(0,(height/2.0) + 5))
+
         layout.add_widget(l)
 
         i = 0
-        for dup in dups:
-            rgba = color_map.to_rgba(i)
-            dup_height = dup[1] / float(loc) 
-            dup_pos = (loc - dup[0]) - dup[1]
-            button = Button(size_hint=(1, dup_height), pos=(0, dup_pos), background_color=rgba)
-            button.bind(on_release= lambda x: self.dupClicked(("foo.js", 2, 5), x))
-            layout.add_widget(button)
+        for dupClass in dupsClasses:
+            if path in dupClass.getDups():
+                duplicates = dupClass.getDups()[path]
+                rgba = color_map.to_rgba(i)
+                for dup in duplicates:
+                    start, end = dup.getLoc()
+
+                    dupLoc = (end - start) * self.height_constant
+
+                    dup_height = (dupLoc) / float(height + 20)
+
+                    dup_pos = ((height) - (start * self.height_constant)) - dupLoc
+                    button = Button(size_hint=(1, dup_height), pos=(0, dup_pos), background_color=rgba)
+                    button.bind(on_release= self.dupClicked(path, start, end))
+                    layout.add_widget(button)
             i += 1
 
         # Here, view should be a Widget or subclass
         view.add_widget(layout)
 
-    def dupClicked(self, (path, start, end), obj):
-        layout = RelativeLayout()
 
+    def dupClicked(self, path, start, end):
+        layout = RelativeLayout()
         code = ""
         fo = open(path, "r")
         lines = fo.readlines()
-        for x in range(end-start):
-            code += lines[start + x]
+
+        for x in range(end-start + 1):
+            code += lines[start + x -1]
 
         codeinput = CodeInput(lexer=CythonLexer(), text=code, readonly=True)
         button = Button(text="Close", size_hint=(1, 0.05))
         layout.add_widget(codeinput)
         layout.add_widget(button)
-        popup = Popup(content=layout, auto_dismiss=False)
+        popup = Popup(content=layout, auto_dismiss=False, title=path)
         button.bind(on_press=popup.dismiss)
-        popup.open()
+            
+        def openPopup(obj):
+            popup.open()
+
+        return openPopup
 
     def back(self, obj):
         sm.current = 'menu'
@@ -155,4 +181,3 @@ class TestApp(App):
 
 if __name__ == '__main__':
     TestApp().run()
-

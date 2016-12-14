@@ -1,4 +1,5 @@
 import re
+import operator
 
 row_reg = r"\((?:[0-9]*,[0-9]*,)<([0-9]*),(?:[0-9]*)>,<([0-9]*),(?:[0-9]*)>\)"
 
@@ -15,7 +16,7 @@ class Location():
         return (start,end)
 
     def getLoc(self):
-        return (self.start, self.end)
+        return (int(self.start), int(self.end))
 
     def __str__(self):
         return "Start: {0}, End: {1}".format(self.start, self.end)
@@ -52,18 +53,22 @@ def convertRascalToDups(path):
     f = open(path, 'r')
     regex = r"\|(\w*\+\w*)(?:\:\/\/\/|\/\))([\w(-|_)\/]*)\|(\([0-9]*,[0-9]*,<[0-9]*,[0-9]*>,<[0-9]*,[0-9]*>\))"
     duplist = []
-    files = []
+    dupfiles = {}
     for p in f.readlines():
         dups = DuplicateClass()
         matches = re.finditer(regex, p)
         for match in matches:
-            path = "/" + match.group(2)
-            if path not in files:
-                files.append(path)
+            path = "" + match.group(2)
+            if path not in dupfiles.keys():
+                dupfiles[path] = 1
+            else:
+                dupfiles[path] += 1
             rascalLocation = match.group(3)
             dups.addDuplicate(path, rascalLocation)
         duplist.append(dups)
-    return (files, duplist)
+        files = sorted(dupfiles, key=dupfiles.get)
+
+    return (dupfiles, duplist)
 
 if __name__ == '__main__':
     duplist = convertRascalToDups('TestProject/blader.tmp')

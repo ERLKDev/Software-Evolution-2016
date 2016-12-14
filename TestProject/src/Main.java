@@ -7,11 +7,56 @@ public class Main
 		
 		// haha
 		
-		/* test */
-		System.out.println("test2");
-		
+		/* t */
+		int a = 1;		
+		int c = 2;
+		int g = 3;
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public static void main2(String [] args)
 	{
@@ -21,25 +66,49 @@ public class Main
 		// haha
 		
 		/* test */
-		int a = 1;
-		a = 2;
-		a = 3;
-		
+		int b = 1;	
+		int c = 2;
+		int g = 3;
 	}
 	
 	
-	public static void main3(String [] args)
-	{
-		/* hoi haha 
-		 * hahdshasd */
-		
-		// haha
-		
-		/* test */
-		int a = 1;
-		a = 2;
-		a = 3;
-		
-		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public int test123(){
+		System.out.println("feeest");
+		System.out.println("feeest");
+		System.out.println("feeest");
+		System.out.println("feeest");
+		System.out.println("feeest");
+		System.out.println("feeest");
+		return 0;
 	}
+	
+	
+	
 }
