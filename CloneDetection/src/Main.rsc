@@ -10,8 +10,8 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
-	loc project = |project://TestProject|;	
-	//loc project = |project://smallsql0.21_src|;	
+	//loc project = |project://TestProject|;	
+	loc project = |project://smallsql0.21_src|;	
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
@@ -25,6 +25,10 @@ void main(){
 	println("loaded2");
 	
 	map[node, list[loc]] duplicates = getDuplicates(subtrees);
+
+	for (i <- duplicates){
+		duplicates = removeDups(i, duplicates);
+	}
 	
 	println("done");
 	//for(d <- duplicates){
@@ -35,6 +39,20 @@ void main(){
 	writeToFile(duplicates);
 }
 
+
+map[node, list[loc]] removeDups(node dup, map[node, list[loc]] duplicates){
+	list[node] children = [];
+	visit(dup){
+		case node x: children += x;
+	}
+
+	for (x <- children){
+		if (x != dup && x in duplicates){
+			duplicates = delete(duplicates, x);
+		}
+	}
+	return duplicates;
+}
 
 list[node] astToSubtrees(Declaration ast){
 	list[node] subtrees = [];
@@ -108,11 +126,16 @@ Declaration normTree(Declaration ast){
 	return ast;
 }
 
+node toNode(value val){
+	if(node x := val) return x;
+	println("error");
+	return makeNode("empty", []);
+}
+
 loc getLocFromNode(node subTree){
 	if(Declaration x := subTree) return x@src;
 	if(Statement x := subTree) return x@src;
 	if(Expression x := subTree) return x@src;
-	
 }
 
 void writeToFile(map[node, list[loc]] duplicates){
