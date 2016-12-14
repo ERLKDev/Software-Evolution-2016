@@ -10,8 +10,8 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
-	loc project = |project://TestProject|;	
-	//loc project = |project://smallsql0.21_src|;	
+	//loc project = |project://TestProject|;	
+	loc project = |project://smallsql0.21_src|;	
 	//loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
@@ -25,16 +25,34 @@ void main(){
 	println("loaded2");
 	
 	map[node, list[loc]] duplicates = getDuplicates(subtrees);
+
+	for (i <- duplicates){
+		duplicates = removeDups(i, duplicates);
+	}
 	
 	println("done");
-	//for(d <- duplicates){
-	//	println();
-	//	println();
-	//	println("\n\n<d> \n : <duplicates[d]>");
-	//}
+	
 	writeToFile(duplicates);
 }
 
+test bool subtreeLenTest(Declaration ast) {
+	list[node] subs = astToSubtrees(ast);
+	return (subs == [] || (min([ getWeight(x) | x <- subs ]) > 5));
+} 
+
+map[node, list[loc]] removeDups(node dup, map[node, list[loc]] duplicates){
+	list[node] children = [];
+	visit(dup){
+		case node x: children += x;
+	}
+
+	for (x <- children){
+		if (x != dup && x in duplicates){
+			duplicates = delete(duplicates, x);
+		}
+	}
+	return duplicates;
+}
 
 list[node] astToSubtrees(Declaration ast){
 	list[node] subtrees = [];
@@ -51,6 +69,18 @@ list[node] astToSubtrees(Declaration ast){
 	return subtrees;
 }
 
+//Length of regular traversal should equal the length of bottom-up traversal
+// (i.e. test of rascal fundamentals).
+test bool weightTest1(node a) {
+	int count1 = 0;
+	int count2 = getWeight(a);
+	
+	bottom-up visit(a) {
+		case node x: count1 += 1;
+	}
+	return count1 == count2;
+}   
+
 int getWeight(node a) {
 	int count = 0;
 	visit(a) {
@@ -59,6 +89,18 @@ int getWeight(node a) {
 	return count;
 }
 
+test bool uniqueLocs(list[node] subtrees) {
+	map[node, list[loc]] duplicates = getDuplicates(subtrees);
+	int amtDups = 0;
+	int unique = 0;
+	return amtDups == unique; 
+	//for (duplicate <- duplicates){ 	
+	//	unique += max(distribution(dups[duplicate]));
+	//	amtDups += 1;
+	//}
+	
+	
+}
 
 map[node, list[loc]] getDuplicates(list[node] subtrees){
 	
@@ -79,7 +121,6 @@ map[node, list[loc]] getDuplicates(list[node] subtrees){
 	}
 	println("done dups");
 	return duplicates;
-	
 }
 
 
@@ -108,11 +149,16 @@ Declaration normTree(Declaration ast){
 	return ast;
 }
 
+node toNode(value val){
+	if(node x := val) return x;
+	println("error");
+	return makeNode("empty", []);
+}
+
 loc getLocFromNode(node subTree){
 	if(Declaration x := subTree) return x@src;
 	if(Statement x := subTree) return x@src;
 	if(Expression x := subTree) return x@src;
-	
 }
 
 void writeToFile(map[node, list[loc]] duplicates){
