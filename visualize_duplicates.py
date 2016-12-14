@@ -66,8 +66,7 @@ def convertRascalToDups(path):
             rascalLocation = match.group(3)
             dups.addDuplicate(path, rascalLocation)
         duplist.append(dups)
-        files = sorted(dupfiles, key=dupfiles.get)
-
+    
     return (dupfiles, duplist)
 
 if __name__ == '__main__':
