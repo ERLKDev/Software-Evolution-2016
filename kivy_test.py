@@ -152,8 +152,9 @@ class DocView(Screen):
         for x in range(end-start + 1):
             code += lines[start + x -1]
 
-        codeinput = CodeInput(lexer=CythonLexer(), text=code, readonly=True)
-        button = Button(text="Close", size_hint=(1, 0.05))
+        scroll = ScrollView()
+        codeinput = CodeInput(lexer=CythonLexer(), text=code, readonly=False)
+        button = Button(text="Close", size_hint=(0.3, 0.05), pos_hint={'right' : 1})
         layout.add_widget(codeinput)
         layout.add_widget(button)
         popup = Popup(content=layout, auto_dismiss=False, title=path)
