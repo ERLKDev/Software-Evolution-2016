@@ -35,10 +35,11 @@ class MenuScreen(Screen):
 
         layout.bind(minimum_height=layout.setter('height'))
 
-        for dupfile in dupfiles.keys():
-            btn = Button(text=dupfile, size=(750, 40),
+        files = reversed(sorted(dupfiles, key=dupfiles.get))
+        for dupfile in files:
+            btn = Button(text="%s :  %d" %(dupfile, dupfiles[dupfile]), size=(750, 40),
                          size_hint=(None, None))
-            btn.bind(on_release=self.openDocView)
+            btn.bind(on_release=self.openDocView(dupfile))
             layout.add_widget(btn)
 
 
@@ -48,20 +49,23 @@ class MenuScreen(Screen):
 
         self.add_widget(root)
 
-    def openDocView(self, obj):
-        dupClasses = []
-        dupFiles = {}
-        for x in self.duplist:
-            keys = x.getDups().keys()
-            if obj.text in keys:
-                dupClasses.append(x)
-                for y in keys:
-                    if y not in dupFiles.keys():
-                        with open(y) as f:
-                            dupFiles[y] = len(f.readlines())
+    def openDocView(self, path):        
+        def openView(obj):
+            dupClasses = []
+            dupFiles = {}
+            print path
+            for x in self.duplist:
+                keys = x.getDups().keys()
+                if path in keys:
+                    dupClasses.append(x)
+                    for y in keys:
+                        if y not in dupFiles.keys():
+                            with open(y) as f:
+                                dupFiles[y] = len(f.readlines())
 
-        sm.add_widget(DocView(name='docView', file_name=obj.text, dupClasses=dupClasses, dupFiles=dupFiles))
-        sm.current = 'docView'
+            sm.add_widget(DocView(name='docView', file_name=path, dupClasses=dupClasses, dupFiles=dupFiles))
+            sm.current = 'docView'
+        return openView
 
 
 class DocView(Screen):
@@ -82,7 +86,7 @@ class DocView(Screen):
             self.sf = (len(dupFiles) * 220 + 200) / float(screen_size[0])  
 
         max_height = dupFiles[max(dupFiles, key=dupFiles.get)] * self.height_constant *1.4
-        print max_height
+     
         if max_height > screen_size[1] and self.sf < max_height / float(screen_size[1]):
             self.sf = max_height / float(screen_size[1])
 
@@ -134,7 +138,7 @@ class DocView(Screen):
                     dup_height = (dupLoc) / float(height + 20)
 
                     dup_pos = ((height) - (start * self.height_constant)) - dupLoc
-                    button = Button(size_hint=(1, dup_height), pos=(0, dup_pos), background_color=rgba)
+                    button = Button(text="%d-%d:%d" % (start, end, end - start + 1), size_hint=(1, dup_height), pos=(0, dup_pos), background_color=rgba)
                     button.bind(on_release= self.dupClicked(path, start, end))
                     layout.add_widget(button)
             i += 1
@@ -152,12 +156,14 @@ class DocView(Screen):
         for x in range(end-start + 1):
             code += lines[start + x -1]
 
-        scroll = ScrollView()
         codeinput = CodeInput(lexer=CythonLexer(), text=code, readonly=False)
         button = Button(text="Close", size_hint=(0.3, 0.05), pos_hint={'right' : 1})
+
+
         layout.add_widget(codeinput)
         layout.add_widget(button)
-        popup = Popup(content=layout, auto_dismiss=False, title=path)
+
+        popup = Popup(content=layout, auto_dismiss=False, title="Path: %s\nStart: %d, end: %d, size: %d"%(path, start, end, end - start + 1))
         button.bind(on_press=popup.dismiss)
             
         def openPopup(obj):
