@@ -3,6 +3,7 @@ module Main
 import IO;
 import Prelude;
 import List;
+import Exception;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
@@ -35,11 +36,11 @@ void main(){
 	writeToFile(duplicates);
 }
 
-test bool subtreeLenTest(Declaration ast) {
-	list[node] subs = astToSubtrees(ast);
-	return (subs == [] || (min([ getWeight(x) | x <- subs ]) > 5));
-} 
-
+//Adding the same node and then removing it should return an empty node.
+test bool removeTest(node singleNode) {
+	node testNode = makeNode("empty", [singleNode]);
+	return isEmpty(removeDups(testNode, (singleNode: [])));
+}
 map[node, list[loc]] removeDups(node dup, map[node, list[loc]] duplicates){
 	list[node] children = [];
 	visit(dup){
@@ -51,9 +52,15 @@ map[node, list[loc]] removeDups(node dup, map[node, list[loc]] duplicates){
 			duplicates = delete(duplicates, x);
 		}
 	}
+	
 	return duplicates;
 }
 
+//Length of all subtrees has to be at least 5.
+test bool subtreeLenTest(Declaration ast) {
+	list[node] subs = astToSubtrees(ast);
+	return (subs == [] || (min([ getWeight(x) | x <- subs ]) > 5));
+} 
 list[node] astToSubtrees(Declaration ast){
 	list[node] subtrees = [];
 	visit(ast){
@@ -71,7 +78,7 @@ list[node] astToSubtrees(Declaration ast){
 
 //Length of regular traversal should equal the length of bottom-up traversal
 // (i.e. test of rascal fundamentals).
-test bool weightTest1(node a) {
+test bool weightTest(node a) {
 	int count1 = 0;
 	int count2 = getWeight(a);
 	
@@ -89,22 +96,23 @@ int getWeight(node a) {
 	return count;
 }
 
+//The list of locations can only contain unique entries.
 test bool uniqueLocs(list[node] subtrees) {
-	map[node, list[loc]] duplicates = getDuplicates(subtrees);
+
+	map[node, list[loc]] duplicates = getDuplicates(subtrees); 
+	
 	int amtDups = 0;
 	int unique = 0;
-	return amtDups == unique; 
-	//for (duplicate <- duplicates){ 	
-	//	unique += max(distribution(dups[duplicate]));
-	//	amtDups += 1;
-	//}
-	
-	
+ 
+	for (duplicate <- duplicates){ 	
+		unique += max(distribution(dups[duplicate]));
+		amtDups += 1;
+	}
+	return amtDups == unique;	
 }
 
 map[node, list[loc]] getDuplicates(list[node] subtrees){
 	
-	println("start duplicates");
 	map[node, list[loc]] duplicates = ();
 	map[node, loc] processed = ();
 	
@@ -119,10 +127,8 @@ map[node, list[loc]] getDuplicates(list[node] subtrees){
 		
 		processed += (subtree : subtree_loc);
 	}
-	println("done dups");
 	return duplicates;
 }
-
 
 Declaration normTree(Declaration ast){
 	ast = visit(ast){
@@ -159,6 +165,8 @@ loc getLocFromNode(node subTree){
 	if(Declaration x := subTree) return x@src;
 	if(Statement x := subTree) return x@src;
 	if(Expression x := subTree) return x@src;
+	//Default, should never be reached unless for testing.
+	return |project://.|;
 }
 
 void writeToFile(map[node, list[loc]] duplicates){
