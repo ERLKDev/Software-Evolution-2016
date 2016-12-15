@@ -47,7 +47,7 @@ class MenuScreen(Screen):
 
         self.add_widget(root)
 
-    def openDocView(self, path):        
+    def openDocView(self, path):
         def openView(obj):
             dupClasses = []
             dupFiles = {}
@@ -74,17 +74,17 @@ class DocView(Screen):
         self.height_constant = 5.0
         self.sf = 1.0
         self.size = Window.size
-        self.file_name = file_name      
+        self.file_name = file_name
 
         parent = Widget()
 
         screen_size = self.size
 
         if len(dupFiles) * 220 + 200 > screen_size[0]:
-            self.sf = (len(dupFiles) * 220 + 200) / float(screen_size[0])  
+            self.sf = (len(dupFiles) * 220 + 200) / float(screen_size[0])
 
         max_height = dupFiles[max(dupFiles, key=dupFiles.get)] * self.height_constant *1.4
-     
+
         if max_height > screen_size[1] and self.sf < max_height / float(screen_size[1]):
             self.sf = max_height / float(screen_size[1])
 
@@ -111,7 +111,7 @@ class DocView(Screen):
         height = loc * self.height_constant
 
         norm  = colors.Normalize(vmin=0, vmax=len(dupsClasses))
-        color_map = cmx.ScalarMappable(norm=norm, cmap='hsv') 
+        color_map = cmx.ScalarMappable(norm=norm, cmap='hsv')
 
         layout = RelativeLayout(size=(200, height + 20), pos=(0 + (220 * index), ((self.size[1] / 2.0) * self.sf - (height / 2.0))))
         with layout.canvas:
@@ -163,7 +163,7 @@ class DocView(Screen):
 
         popup = Popup(content=layout, auto_dismiss=False, title="Path: %s\nStart: %d, end: %d, size: %d"%(path, start, end, end - start + 1))
         button.bind(on_press=popup.dismiss)
-            
+
         def openPopup(obj):
             popup.open()
 

@@ -41,6 +41,8 @@ test bool removeTest(node singleNode) {
 	node testNode = makeNode("empty", [singleNode]);
 	return isEmpty(removeDups(testNode, (singleNode: [])));
 }
+
+//Removes the duplicates from the children of the passed tree. 
 map[node, list[loc]] removeDups(node dup, map[node, list[loc]] duplicates){
 	list[node] children = [];
 	visit(dup){
@@ -61,6 +63,8 @@ test bool subtreeLenTest(Declaration ast) {
 	list[node] subs = astToSubtrees(ast);
 	return (subs == [] || (min([ getWeight(x) | x <- subs ]) > 5));
 } 
+
+//Split the ast into subtrees with at least 5 childnodes.
 list[node] astToSubtrees(Declaration ast){
 	list[node] subtrees = [];
 	visit(ast){
@@ -88,6 +92,7 @@ test bool weightTest(node a) {
 	return count1 == count2;
 }   
 
+//Calculates the length(weight) of a tree.
 int getWeight(node a) {
 	int count = 0;
 	visit(a) {
@@ -111,6 +116,7 @@ test bool uniqueLocs(list[node] subtrees) {
 	return amtDups == unique;	
 }
 
+//Walks through the subtrees and looks for subtrees with the same structure. 
 map[node, list[loc]] getDuplicates(list[node] subtrees){
 	
 	map[node, list[loc]] duplicates = ();
@@ -130,6 +136,7 @@ map[node, list[loc]] getDuplicates(list[node] subtrees){
 	return duplicates;
 }
 
+//Converts all variables into placeholder tokens for type II clone detection.
 Declaration normTree(Declaration ast){
 	ast = visit(ast){
 		case \variable(_, a, b) => \variable("var", a, b)
@@ -155,12 +162,14 @@ Declaration normTree(Declaration ast){
 	return ast;
 }
 
+//Converts a val to a node.
 node toNode(value val){
 	if(node x := val) return x;
 	println("error");
 	return makeNode("empty", []);
 }
 
+//Extracts the location from a node.
 loc getLocFromNode(node subTree){
 	if(Declaration x := subTree) return x@src;
 	if(Statement x := subTree) return x@src;
@@ -169,6 +178,7 @@ loc getLocFromNode(node subTree){
 	return |project://.|;
 }
 
+//Writes the duplicates to a file so it can be used by the python script.
 void writeToFile(map[node, list[loc]] duplicates){
 	loc location = |project://TestProject/blader.tmp|;
 	str out = "";
