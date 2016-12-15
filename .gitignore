@@ -6,3 +6,4 @@ series1/
 *.tar.gz
 TestProject/blader.tmp
 *.pyc
+blader.tmp
