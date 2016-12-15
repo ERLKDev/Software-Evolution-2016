@@ -26,16 +26,18 @@ class MenuScreen(Screen):
     def __init__ (self, **kwargs):
         super (MenuScreen, self).__init__(**kwargs)
 
-        self.duplist = duplist
+        self.duplist = kwargs['duplist']
+        self.dupfiles = kwargs['dupfiles']
+        self.sm = kwargs['sm']
 
         layout = GridLayout(cols=1, padding=10, spacing=10,
                 size_hint=(None, None), width=750)
 
         layout.bind(minimum_height=layout.setter('height'))
 
-        files = reversed(sorted(dupfiles, key=dupfiles.get))
+        files = reversed(sorted(self.dupfiles, key=self.dupfiles.get))
         for dupfile in files:
-            btn = Button(text="%s :  %d" %(dupfile, dupfiles[dupfile]), size=(750, 40),
+            btn = Button(text="%s :  %d" %(dupfile, self.dupfiles[dupfile]), size=(750, 40),
                          size_hint=(None, None))
             btn.bind(on_release=self.openDocView(dupfile))
             layout.add_widget(btn)
@@ -51,7 +53,7 @@ class MenuScreen(Screen):
         def openView(obj):
             dupClasses = []
             dupFiles = {}
-            print path
+
             for x in self.duplist:
                 keys = x.getDups().keys()
                 if path in keys:
@@ -61,29 +63,32 @@ class MenuScreen(Screen):
                             with open(y) as f:
                                 dupFiles[y] = len(f.readlines())
 
-            sm.add_widget(DocView(name='docView', file_name=path, dupClasses=dupClasses, dupFiles=dupFiles))
-            sm.current = 'docView'
+            self.sm.add_widget(DocView(name='docView', fileName=path, dupClasses=dupClasses, dupFiles=dupFiles, sm=self.sm))
+            self.sm.current = 'docView'
         return openView
 
 
 class DocView(Screen):
-    def __init__ (self, file_name, dupClasses, dupFiles, **kwargs):
+    def __init__ (self, **kwargs):
         super (DocView, self).__init__(**kwargs)
 
         #print dupFiles
         self.height_constant = 5.0
         self.sf = 1.0
         self.size = Window.size
-        self.file_name = file_name      
+        self.fileName = kwargs['fileName']  
+        self.dupClasses = kwargs['dupClasses']
+        self.dupFiles = kwargs['dupFiles']
+        self.sm = kwargs['sm']    
 
         parent = Widget()
 
         screen_size = self.size
 
-        if len(dupFiles) * 220 + 200 > screen_size[0]:
-            self.sf = (len(dupFiles) * 220 + 200) / float(screen_size[0])  
+        if len(self.dupFiles) * 220 + 200 > screen_size[0]:
+            self.sf = (len(self.dupFiles) * 220 + 200) / float(screen_size[0])  
 
-        max_height = dupFiles[max(dupFiles, key=dupFiles.get)] * self.height_constant *1.4
+        max_height = self.dupFiles[max(self.dupFiles, key=self.dupFiles.get)] * self.height_constant *1.4
      
         if max_height > screen_size[1] and self.sf < max_height / float(screen_size[1]):
             self.sf = max_height / float(screen_size[1])
@@ -98,10 +103,10 @@ class DocView(Screen):
 
         index = 0
         max_height = 0
-        for x in dupFiles:
-            self.addBlock(s, dupFiles[x], dupClasses, x, index)
-            if dupFiles[x] * self.height_constant > max_height:
-                max_height = dupFiles[x] * self.height_constant
+        for x in self.dupFiles:
+            self.addBlock(s, self.dupFiles[x], self.dupClasses, x, index)
+            if self.dupFiles[x] * self.height_constant > max_height:
+                max_height = self.dupFiles[x] * self.height_constant
 
             index += 1
 
@@ -141,7 +146,6 @@ class DocView(Screen):
                     layout.add_widget(button)
             i += 1
 
-        # Here, view should be a Widget or subclass
         view.add_widget(layout)
 
 
@@ -170,18 +174,19 @@ class DocView(Screen):
         return openPopup
 
     def back(self, obj):
-        sm.current = 'menu'
-        sm.remove_widget(sm.get_screen('docView'))
+        self.sm.current = 'menu'
+        self.sm.remove_widget(sm.get_screen('docView'))
 
-
-# Create the screen manager
-sm = ScreenManager()
-dupfiles, duplist = convertRascalToDups('TestProject/blader.tmp')
-sm.add_widget(MenuScreen(name='menu', dupfiles=dupfiles, duplist=duplist))
 
 class TestApp(App):
 
     def build(self):
+
+        # Create the screen manager
+        sm = ScreenManager()
+        dupfiles, duplist = convertRascalToDups('TestProject/blader.tmp')
+        sm.add_widget(MenuScreen(name='menu', dupfiles=dupfiles, duplist=duplist, sm=sm))
+
         return sm
 
 if __name__ == '__main__':
