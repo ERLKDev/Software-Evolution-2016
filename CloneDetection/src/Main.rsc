@@ -71,7 +71,7 @@ list[node] astToSubtrees(Declaration ast){
 		case node x: {
 			if("src" in getAnnotations(x)){
 				int weight = getWeight(x);  
-				if (weight > 5) {
+				if (weight > 20) {
 					subtrees += x;
 				}
 			}

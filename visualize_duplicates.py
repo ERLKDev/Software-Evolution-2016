@@ -60,7 +60,7 @@ def convertRascalToDups(path):
         dups = DuplicateClass()
         matches = re.finditer(regex, p)
         for match in matches:
-            path = "" + match.group(2)
+            path = "/" + match.group(2)
             if path not in dupfiles.keys():
                 dupfiles[path] = 1
             else:
