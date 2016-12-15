@@ -4,6 +4,7 @@ import IO;
 import Prelude;
 import List;
 import Exception;
+import util::Benchmark;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
@@ -11,9 +12,15 @@ import lang::java::jdt::m3::AST;
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 void main(){
+	map[str, num] runtime = benchmark(("total tests" : void() {analyze();}));
+	num runtimeSec = runtime["total tests"]/1000;
+	println("Total runtime in seconds: <runtimeSec>");	
+}
+
+void analyze() {
 	//loc project = |project://TestProject|;	
-	loc project = |project://smallsql0.21_src|;	
-	//loc project = |project://hsqldb-2.3.1|;
+	//loc project = |project://smallsql0.21_src|;	
+	loc project = |project://hsqldb-2.3.1|;
 	
 	M3 model = createM3FromEclipseProject(project);
 	println("loaded");
